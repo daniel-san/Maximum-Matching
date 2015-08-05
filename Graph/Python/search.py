@@ -10,12 +10,13 @@ def dfs(G, v):
         v = s.pop()
         if v.status != "visited":
             v.status = "visited"
+            print "Id -> %d" % v.id
             for i in v.adj:
                 s.append(i)
 
     
 
-def bfs():
+def bfs(G,v):
     """
     Breadth-First Search base implementation
     """
@@ -27,4 +28,5 @@ def bfs():
             if i.status != "visited":
                 q.append(i)
                 i.status = "visited"
+                print "Id -> %d" % i.id
         

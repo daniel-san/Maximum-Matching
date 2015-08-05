@@ -1,11 +1,11 @@
 #Graph classes draft
 
 class Node():
-    def __init__(self,x,y,id):
-        self.id = -1
+    def __init__(self,id):
+        self.id = id
         self.status = None #Status, used in algorithms like DFS
-        self.X = x #X coordinate, if used
-        self.Y = y #Y coordinate, if used
+        #self.X = x #X coordinate, if used
+        #self.Y = y #Y coordinate, if used
         self.adj = [] #List of adjacent vertices
     
 #Designing graph without a Edge class for now...    
