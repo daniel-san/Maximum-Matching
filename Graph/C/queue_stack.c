@@ -6,7 +6,6 @@ Stack* stack_create()
     Stack* stack = (Stack*) malloc(sizeof(Stack));
     if (stack != NULL)
     {
-        stack->stack_size = 0;
         stack->top = NULL;
     }
 
@@ -45,7 +44,6 @@ Queue* queue_create()
     Queue* queue = (Queue*) malloc(sizeof(Queue));
     if (queue != NULL)
     {
-        queue->queue_size = 0;
         queue->first = queue->last = NULL;
     }
 
@@ -86,4 +84,37 @@ Element* queue_dequeue(Queue* q)
     q->queue_size--;
 
     return queue_first;
+}
+
+//list functions
+
+List* list_create()
+{
+    List* list = (List*) malloc (sizeof(List));
+    if (list != NULL)
+    {
+        list->head = NULL;
+    }
+
+    return list;
+}
+
+void list_add(List* l, void* data)
+{
+    Element* new_element = (Element*) malloc (sizeof(Element));
+    if (new_element != NULL)
+    {
+        new_element->data = data;
+        if (list->head == NULL)
+        {
+            list->head = new_element;
+        }
+        else
+        {
+            new_element->next = list->head;
+            list->head = new_element;
+        }
+        list->list_size++;
+    }
+    
 }

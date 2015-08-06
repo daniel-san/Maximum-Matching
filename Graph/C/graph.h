@@ -2,8 +2,8 @@
 
 typedef struct vertex{
     int id;
-    double x;
-    double y;
+    int visited = 0;
+    //List* neighbors;
 } Vertex;
 
 typedef struct edge{
