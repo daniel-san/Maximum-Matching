@@ -12,14 +12,14 @@ typedef struct element
 //stack struct
 typedef struct stack
 {
-    size_t stack_size = 0;
+    size_t stack_size;
     Element *top;
 } Stack;
 
 //queue struct
 typedef struct queue
 {
-    size_t queue_size = 0;
+    size_t queue_size;
     Element *first;
     Element *last;
 } Queue;
@@ -27,7 +27,7 @@ typedef struct queue
 //linked list struct
 typedef struct list
 {
-	size_t list_size = 0;
+	size_t list_size;
 	Element* head;
 } List;
 
