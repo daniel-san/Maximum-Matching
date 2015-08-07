@@ -1,6 +1,6 @@
 #include "search.h"
 
-void DFS(Graph g, Vertex v)
+void DFS(Vertex v)
 {
     Stack* stack = stack_create();
     List* neighbors;
@@ -9,7 +9,10 @@ void DFS(Graph g, Vertex v)
     stack_push(stack, (void*) v);
     while(stack->stack_size > 0)
     {
-        v = (Vertex) stack_pop(stack)->data;
+        temp = stack_pop(stack);
+        v = (Vertex) temp->data;
+        free(temp);
+
         if (!v.visited)
         {
             v.visited = 1;
@@ -25,7 +28,7 @@ void DFS(Graph g, Vertex v)
     }
 }
 
-void BFS(Graph g, Vertex v)
+void BFS(Vertex v)
 {
     Queue* queue = queue_create();
     List* neighbors;
@@ -34,7 +37,10 @@ void BFS(Graph g, Vertex v)
     queue_enqueue(queue, (void*)v);
     while(queue->queue_size > 0)
     {
-        v = (Vertex) queue_dequeue(queue)->data;
+        temp = queue_dequeue(queue);
+        v = (Vertex) temp->data;
+        free(temp);
+
         neighbors = v.neighbors;
         temp = neighbors->head;
         while (temp != NULL)

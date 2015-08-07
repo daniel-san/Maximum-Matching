@@ -2,7 +2,7 @@
 
 typedef struct vertex{
     int id;
-    int visited = 0;
+    int visited;
     //List* neighbors;
 } Vertex;
 

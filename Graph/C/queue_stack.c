@@ -7,7 +7,6 @@ Stack* stack_create()
     if (stack != NULL)
     {
         stack->top = NULL;
-        stack->stack_size = 0;
     }
 
     return stack;
@@ -46,7 +45,6 @@ Queue* queue_create()
     if (queue != NULL)
     {
         queue->first = queue->last = NULL;
-        queue->queue_size = 0;
     }
 
     return queue;
@@ -96,7 +94,6 @@ List* list_create()
     if (list != NULL)
     {
         list->head = NULL;
-        list->list_size = 0;
     }
 
     return list;
