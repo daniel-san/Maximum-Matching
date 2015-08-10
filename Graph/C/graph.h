@@ -1,4 +1,3 @@
-#include <math.h>
 #include "adt.h"
 
 typedef struct vertex{

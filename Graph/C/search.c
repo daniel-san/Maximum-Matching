@@ -1,22 +1,24 @@
+#include <stdlib.h>
 #include "search.h"
 
 void DFS(Vertex v)
 {
     Stack* stack = stack_create();
+    Vertex* v_temp;
     List* neighbors;
     Element* temp;
 
-    stack_push(stack, (void*) v);
+    stack_push(stack, (void*) &v);
     while(stack->stack_size > 0)
     {
         temp = stack_pop(stack);
-        v = (Vertex) temp->data;
-        free(temp);
+        v_temp = (Vertex*) temp->data;
+        //free(temp);
 
-        if (!v.visited)
+        if (!v_temp->visited)
         {
-            v.visited = 1;
-            neighbors = v.neighbors;
+            v_temp->visited = 1;
+            neighbors = v_temp->neighbors;
             temp = neighbors->head;
             while (temp != NULL)
             {
@@ -31,25 +33,26 @@ void DFS(Vertex v)
 void BFS(Vertex v)
 {
     Queue* queue = queue_create();
+    Vertex* v_temp;
     List* neighbors;
     Element* temp;
 
-    queue_enqueue(queue, (void*)v);
+    queue_enqueue(queue, (void*)&v);
     while(queue->queue_size > 0)
     {
         temp = queue_dequeue(queue);
-        v = (Vertex) temp->data;
-        free(temp);
+        v_temp = (Vertex*) temp->data;
+        //free(temp); 
 
         neighbors = v.neighbors;
         temp = neighbors->head;
         while (temp != NULL)
         {
-            v = (Vertex) temp->data;
-            if (!v.visited)
+            v_temp = (Vertex*) temp->data;
+            if (!v_temp->visited)
             {
-                v.visited = 1;
-                queue_enqueue(queue, (void*) v);
+                v_temp->visited = 1;
+                queue_enqueue(queue, (void*) v_temp);
 
             }
             temp = temp->next;
