@@ -18,6 +18,6 @@ typedef struct graph{
     Edge* e;
 } Graph;
 
-Vertex* vertex_create(int id);
-Edge* edge_create(Vertex* v1, Vertex* v2);
+Vertex vertex_create(int id);
+Edge edge_create(Vertex* v1, Vertex* v2);
 Graph graph_create(size_t vertex_n, size_t edge_n);

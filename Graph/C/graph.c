@@ -1,19 +1,19 @@
 #include <stdlib.h>
 #include "graph.h"
 
-Vertex* vertex_create(int id)
+Vertex vertex_create(int id)
 {
-    Vertex* v = (Vertex*) malloc(sizeof(Vertex));
-    v->id = id;
-    v->neighbors = list_create();
+    Vertex v;
+    v.id = id;
+    v.neighbors = list_create();
     return v;
 }
 
-Edge* edge_create(Vertex* v1, Vertex* v2)
+Edge edge_create(Vertex* v1, Vertex* v2)
 {
-    Edge* e = (Edge*) malloc(sizeof(Edge));
-    e->v1 = v1;
-    e->v2 = v2;
+    Edge e;
+    e.v1 = v1;
+    e.v2 = v2;
     list_add(v1->neighbors, (void*)v2);
     list_add(v2->neighbors, (void*)v1);
 
