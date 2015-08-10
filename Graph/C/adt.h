@@ -1,4 +1,4 @@
-//Code for Stack and Queue structs used on DFS and BFS
+//Code for abstract data type structs used through the library
 
 //Rough implementation draft -- Expect improvements/changes in code and file structure
 

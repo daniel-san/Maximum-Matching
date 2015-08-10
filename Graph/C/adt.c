@@ -1,5 +1,5 @@
-#include "queue_stack.h"
 #include <stdlib.h>
+#include "adt.h"
 
 Stack* stack_create()
 {
@@ -105,16 +105,16 @@ void list_add(List* l, void* data)
     if (new_element != NULL)
     {
         new_element->data = data;
-        if (list->head == NULL)
+        if (l->head == NULL)
         {
-            list->head = new_element;
+            l->head = new_element;
         }
         else
         {
-            new_element->next = list->head;
-            list->head = new_element;
+            new_element->next = l->head;
+            l->head = new_element;
         }
-        list->list_size++;
+        l->list_size++;
     }
     
 }

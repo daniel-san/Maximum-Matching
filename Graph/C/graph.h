@@ -1,20 +1,23 @@
 #include <math.h>
+#include "adt.h"
 
 typedef struct vertex{
     int id;
     int visited;
-    //List* neighbors;
+    List* neighbors;
 } Vertex;
 
 typedef struct edge{
-    struct vertex v1;
-    struct vertex v2;
+    Vertex* v1;
+    Vertex* v2;
     double weight;
 } Edge;
 
 typedef struct graph{
-    struct vertex* v;
-    struct edge* e;
+    Vertex* v;
+    Edge* e;
 } Graph;
 
-double weight(Vertex v1, Vertex v2);
+Vertex* vertex_create(int id);
+Edge* edge_create(Vertex* v1, Vertex* v2);
+Graph graph_create(size_t vertex_n, size_t edge_n);
