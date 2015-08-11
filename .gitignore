@@ -1,5 +1,7 @@
 #pyc files
 *.pyc
+.directory
+
 
 #C object files
 *.o
