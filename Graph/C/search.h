@@ -1,5 +1,5 @@
 #include "graph.h"
 
-void DFS(Vertex v);
+void DFS(Vertex* v);
 
-void BFS(Vertex v);
+void BFS(Vertex* v);

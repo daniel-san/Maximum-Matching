@@ -13,6 +13,8 @@ typedef struct edge{
 } Edge;
 
 typedef struct graph{
+    size_t vertex_n;
+    size_t edge_n;
     Vertex* v;
     Edge* e;
 } Graph;
