@@ -5,7 +5,7 @@
 // Basic element
 typedef struct element
 {
-    void* data;
+    void *data;
     struct element* next;
 } Element;
 
@@ -28,20 +28,19 @@ typedef struct queue
 typedef struct list
 {
 	size_t list_size;
-	Element* head;
+	Element *head;
 } List;
 
 //stack functions
-Stack* stack_create();
-void stack_push(Stack* s, void* data);
-Element* stack_pop(Stack* s);
+Stack* stack_create ();
+void stack_push (Stack *s, void *data);
+Element* stack_pop (Stack *s);
 
 //queue functions
-Queue* queue_create();
-void queue_enqueue(Queue* q, void* data);
-Element* queue_dequeue(Queue* q);
+Queue* queue_create ();
+void queue_enqueue (Queue *q, void *data);
+Element* queue_dequeue (Queue *q);
 
 //list functions
-List* list_create();
-void list_add(List* l, void* data);
-//Element* list_delete();
+List* list_create ();
+void list_add (List *l, void *data);

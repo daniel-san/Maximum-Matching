@@ -1,9 +1,10 @@
 #include <stdlib.h>
 #include "adt.h"
 
-Stack* stack_create()
+Stack *
+stack_create ()
 {
-    Stack* stack = (Stack*) malloc(sizeof(Stack));
+    Stack *stack = (Stack*) malloc (sizeof (Stack));
     if (stack != NULL)
     {
         stack->top = NULL;
@@ -12,10 +13,11 @@ Stack* stack_create()
     return stack;
 }
 
-void stack_push(Stack* s, void* data)
+void
+stack_push (Stack *s, void *data)
 {
     Element* stack_top = s->top;
-    Element* new_element = (Element*) malloc(sizeof(Element));
+    Element* new_element = (Element*) malloc (sizeof (Element));
     if (new_element != NULL)
     {
         new_element->data = data;
@@ -25,7 +27,8 @@ void stack_push(Stack* s, void* data)
     }
 }
 
-Element* stack_pop(Stack* s)
+Element *
+stack_pop (Stack* s)
 {
     Element* stack_top = s->top;
     if (stack_top != NULL)
@@ -33,15 +36,15 @@ Element* stack_pop(Stack* s)
         s->top = stack_top->next;
         s->stack_size--;
     }
-
     return stack_top;
 }
 
 //queue functions
 
-Queue* queue_create()
+Queue *
+queue_create ()
 {
-    Queue* queue = (Queue*) malloc(sizeof(Queue));
+    Queue *queue = (Queue*) malloc (sizeof (Queue));
     if (queue != NULL)
     {
         queue->first = queue->last = NULL;
@@ -50,9 +53,10 @@ Queue* queue_create()
     return queue;
 }
 
-void queue_enqueue(Queue* q, void* data)
+void
+queue_enqueue (Queue *q, void *data)
 {
-    Element* new_element = (Element*) malloc(sizeof(Element));
+    Element *new_element = (Element*) malloc (sizeof(Element));
     if (new_element != NULL)
     {
         new_element->data = data;
@@ -69,9 +73,10 @@ void queue_enqueue(Queue* q, void* data)
     }
 }
 
-Element* queue_dequeue(Queue* q)
+Element *
+queue_dequeue (Queue *q)
 {
-    Element* queue_first = q->first;
+    Element *queue_first = q->first;
 
     if (q->first == q->last)
     {
@@ -88,20 +93,21 @@ Element* queue_dequeue(Queue* q)
 
 //list functions
 
-List* list_create()
+List *
+list_create()
 {
-    List* list = (List*) malloc (sizeof(List));
+    List *list = (List*) malloc (sizeof (List));
     if (list != NULL)
     {
         list->head = NULL;
     }
-
     return list;
 }
 
-void list_add(List* l, void* data)
+void
+list_add(List *l, void *data)
 {
-    Element* new_element = (Element*) malloc (sizeof(Element));
+    Element *new_element = (Element*) malloc (sizeof (Element));
     if (new_element != NULL)
     {
         new_element->data = data;
@@ -115,6 +121,5 @@ void list_add(List* l, void* data)
             l->head = new_element;
         }
         l->list_size++;
-    }
-    
+    }   
 }
