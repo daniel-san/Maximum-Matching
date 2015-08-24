@@ -41,6 +41,8 @@ random_graph (size_t n, int p)
         G.e[i] = * (Edge*) list_pop (edge_list);
     }
 
+    return G;
+
 }
 
 Graph
