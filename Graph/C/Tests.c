@@ -31,7 +31,8 @@ DFS (Vertex *v)
     }
 }
 
-void BFS (Vertex *v)
+void
+BFS (Vertex *v)
 {
     Queue *queue = queue_create ();
     Vertex *v_temp;

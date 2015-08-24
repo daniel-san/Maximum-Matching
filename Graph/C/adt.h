@@ -44,3 +44,4 @@ Element* queue_dequeue (Queue *q);
 //list functions
 List* list_create ();
 void list_add (List *l, void *data);
+Element* list_pop (List *l);

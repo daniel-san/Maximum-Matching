@@ -94,7 +94,7 @@ queue_dequeue (Queue *q)
 //list functions
 
 List *
-list_create()
+list_create ()
 {
     List *list = (List*) malloc (sizeof (List));
     if (list != NULL)
@@ -105,7 +105,7 @@ list_create()
 }
 
 void
-list_add(List *l, void *data)
+list_add (List *l, void *data)
 {
     Element *new_element = (Element*) malloc (sizeof (Element));
     if (new_element != NULL)
@@ -122,4 +122,16 @@ list_add(List *l, void *data)
         }
         l->list_size++;
     }   
+}
+
+Element *
+list_pop (List *l)
+{
+    Element* list_head = l->head;
+    if (list_head != NULL)
+    {
+        l->head = list_head->next;
+        l->list_size--;
+    }
+    return list_head; 
 }
