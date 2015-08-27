@@ -8,6 +8,7 @@ stack_create ()
     if (stack != NULL)
     {
         stack->top = NULL;
+        stack->stack_size = 0;
     }
 
     return stack;
@@ -39,6 +40,22 @@ stack_pop (Stack* s)
     return stack_top;
 }
 
+void
+stack_destroy (Stack *s)
+{
+    Element *e;
+    if (s != NULL)
+    {
+        while(s->stack_size > 0)
+        {
+            e = stack_pop(s);
+            free(e->data);
+            free(e);
+        }
+    }
+    free(s);
+}
+
 //queue functions
 
 Queue *
@@ -48,6 +65,7 @@ queue_create ()
     if (queue != NULL)
     {
         queue->first = queue->last = NULL;
+        queue->queue_size = 0;
     }
 
     return queue;
@@ -91,6 +109,21 @@ queue_dequeue (Queue *q)
     return queue_first;
 }
 
+void
+queue_destroy (Queue *q)
+{
+    Element *e;
+    if (q != NULL)
+    {
+        while(q->queue_size > 0)
+        {
+            e = queue_dequeue(q);
+            free(e->data);
+            free(e);
+        }
+    }
+    free(q);
+}
 //list functions
 
 List *
@@ -100,6 +133,7 @@ list_create ()
     if (list != NULL)
     {
         list->head = NULL;
+        list->list_size = 0;
     }
     return list;
 }
@@ -134,4 +168,20 @@ list_pop (List *l)
         l->list_size--;
     }
     return list_head; 
+}
+
+void
+list_destroy (List *l)
+{
+    Element *e;
+    if (l != NULL)
+    {
+        while(l->list_size > 0)
+        {
+            e = list_pop(l);
+            free(e->data);
+            free(e);
+        }
+    }
+    free(l);
 }

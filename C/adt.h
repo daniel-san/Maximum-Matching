@@ -35,13 +35,16 @@ typedef struct list
 Stack* stack_create ();
 void stack_push (Stack *s, void *data);
 Element* stack_pop (Stack *s);
+void stack_destroy (Stack *s);
 
 //queue functions
 Queue* queue_create ();
 void queue_enqueue (Queue *q, void *data);
 Element* queue_dequeue (Queue *q);
+void queue_destroy (Queue *q);
 
 //list functions
 List* list_create ();
 void list_add (List *l, void *data);
 Element* list_pop (List *l);
+void list_destroy (List *l);
