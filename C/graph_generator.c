@@ -1,6 +1,5 @@
 #include <stdlib.h>
 #include <time.h>
-#include "adt.h"
 #include "graph_generator.h"
 
 Graph

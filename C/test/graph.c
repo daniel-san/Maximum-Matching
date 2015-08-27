@@ -2,12 +2,13 @@
 #include <stdio.h>
 #include "../graph.h"
 
-//Test creating a graph with the following topology
-//          0
-//        /   \
-//       4    1
-//       |    |
-//       3----2
+/*Test creating a graph with the following topology
+          0
+        /   \
+       4    1
+       |    |
+       3----2
+*/
 void 
 test_ring ()
 {
@@ -50,14 +51,15 @@ test_ring ()
     }
 }
 
-//Test creating a graph with the following topology
-//         0
-//       /   \
-//      1    2
-//     / \  / \
-//     3 4  5 6
-//     | |  |
-//     7 8  9
+/*Test creating a graph with the following topology
+         0
+       /   \
+      1    2
+     / \  / \
+     3 4  5 6
+     | |  |
+     7 8  9
+*/
 void 
 test_tree ()
 {
@@ -104,11 +106,13 @@ test_tree ()
     }
 }
 
-void main (int argc, char* argv[])
+int main (int argc, char* argv[])
 {
     printf("Testing the creation of a ring graph.\n");
     test_ring ();
 
     printf("Testing the creation of a tree graph.\n");
     test_tree ();
+
+    return 0;
 }
