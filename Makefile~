@@ -13,7 +13,7 @@ all:
 				../graph.o
 	cd C/test; ${CC} ${CFLAGS} graph_generator.c -o graph_generator \
 				../graph.o \
-				../adt.o \
+				../adt.o
 				../graph_generator.o
 clean:
 	cd C; rm -rf *.o

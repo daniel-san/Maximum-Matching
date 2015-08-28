@@ -8,7 +8,7 @@ main (int argc, char* argv[])
     Graph g;
     int i;
     int n = 10;
-    int p = 60;
+    int p = 99;
     /**
      * create a random graph with 10 nodes, with 60% chance of creating an 
      * edge between 2 nodes

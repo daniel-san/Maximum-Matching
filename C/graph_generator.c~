@@ -9,6 +9,7 @@ random_graph (size_t n, int p)
     srand(time(NULL));
     
     int i, j;
+    Edge *e;
     Graph G;
     List *v1_list = list_create();
     List *v2_list = list_create();
