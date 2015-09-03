@@ -8,6 +8,7 @@
 typedef struct vertex
 {
     int id;
+    int index; //index in the vertices list (G.V)
     int degree;
     List* L; //list of Edge structures
     //List* neighbors;

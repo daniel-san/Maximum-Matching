@@ -2,7 +2,11 @@
 
 //Rough implementation draft -- Expect improvements/changes in code and file structure
 
-// Basic element
+/**
+ * Basic element
+ * TODO: Verify if it's good to add an extra attribute 
+ * that says the index of that element in the stack/queue/list.
+ */
 typedef struct element
 {
     void *data;
