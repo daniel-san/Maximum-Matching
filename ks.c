@@ -29,14 +29,27 @@ greedy_matching (Graph G)
         {
             n = rand() % G.vertex1_n;
             v = &G.V1[n];
-            //execute this procedure when 'deleting' edges
-            //this code here for vertices isn't needed, at least for now
+
+            //deleting the selected vertex from V1
             G.V1[n] = G.V1[G.vertex1_n - 1];
             G.V1[G.vertex1_n - 1] = *v;
             G.vertex1_n--;
 
+            e = (Edge*) v->L->head->data;
+
+            //deleting the only edge of v from G.E
+            n = e->er->index;
+            G.E[n] = G.E[G.edge_n - 1];
+            G.E[G.edge_n - 1] = *e->er;
+            G.edge_n--;
+
+        }
+        else
+        {
+            //code for when there are no more vertex of degree 1
+            
         }
 
     }
-    list_add (M, (void*) e);
+
 }

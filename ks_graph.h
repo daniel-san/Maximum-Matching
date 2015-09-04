@@ -30,10 +30,12 @@ typedef struct edge
  */
 typedef struct edge_repr
 {
+    int index; // this element's index in G.E
+
     //vertices index or id
     int u;
     int v;
-    
+
     //position of edge (u,v) in u.L list//--
     Element *pos_u;                     //  |-> Should really be pointers?
     //position of edge(u,v) in v.L list //--
