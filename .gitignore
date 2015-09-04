@@ -2,5 +2,8 @@
 *.pyc
 .directory
 
+#vim session files
+*.vim
+
 #C object files
 *.o

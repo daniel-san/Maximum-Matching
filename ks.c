@@ -37,16 +37,18 @@ greedy_matching (Graph G)
 
             e = (Edge*) v->L->head->data;
 
-            //deleting the only edge of v from G.E
+            //deleting the only edge of v from G.E and updating edges index
             n = e->er->index;
             G.E[n] = G.E[G.edge_n - 1];
             G.E[G.edge_n - 1] = *e->er;
+            e->er->index = G.edge_n - 1;
+            G.E[n].index = n;
             G.edge_n--;
 
         }
         else
         {
-            //code for when there are no more vertex of degree 1
+            //section of code for when there are no more vertex of degree 1
             
         }
 
