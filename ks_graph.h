@@ -15,17 +15,6 @@ typedef struct vertex
 }Vertex;
 
 /**
- * Edge structure
- */
-typedef struct edge
-{
-    //vertices index or id
-    int u;
-    int v;
-    struct edge_repr* er;
-}Edge;
-
-/**
  * Edge representative structure
  */
 typedef struct edge_repr
@@ -41,6 +30,17 @@ typedef struct edge_repr
     //position of edge(u,v) in v.L list //--
     Element *pos_v;
 }Edge_repr;
+
+/**
+ * Edge structure
+ */
+typedef struct edge
+{
+    //vertices index or id
+    int u;
+    int v;
+    struct edge_repr* er;
+}Edge;
 
 /**
  * Graph structure
