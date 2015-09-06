@@ -27,7 +27,8 @@ vertex_set_degree (Vertex *v)
  * Find the vertices of V that have degree 1, and add them to 
  * the array V1. Also updates the index attribute at each vertex
  */
-void degree1_vertices (Vertex *V, Vertex *V1, size_t vertex_n)
+void
+degree1_vertices (Vertex *V, Vertex *V1, size_t vertex_n)
 {
     int v1_count = 0, i, j = 0;
     for (i = 0; i < vertex_n; i++)

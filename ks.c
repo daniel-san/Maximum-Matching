@@ -45,6 +45,8 @@ greedy_matching (Graph G)
             G.E[n].index = n;
             G.edge_n--;
 
+            list_add (M, (void*) e);
+
         }
         else
         {
