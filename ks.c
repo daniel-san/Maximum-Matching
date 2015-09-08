@@ -39,34 +39,25 @@ greedy_matching (Graph G)
             e = (Edge*) v->L->head->data;
             er = e->er;
 
-            //deleting the only edge of v from G.E and updating edges index
-            n = er->index;
-            G.E[n] = G.E[G.edge_n - 1];
-            G.E[G.edge_n - 1] = *er;
-            er->index = G.edge_n - 1;
-            G.E[n].index = n;
-            G.edge_n--;
-
-            list_add (M, (void*) er);
-
+            list_delete (G.V[er->u].L, er->pos_u);
+            list_delete (G.V[er->v].L, er->pos_v);
         }
         else
         {
             //section of code for when there are no more vertex of degree 1
             n = rand() % G.edge_n;
             er = &G.E[n];
-
-            n = er->index;
-
-            G.E[n] = G.E[G.edge_n - 1];
-            G.E[G.edge_n - 1] = *er;
-            er->index = G.edge_n - 1;
-            G.E[n].index = n;
-            G.edge_n--;
-
-            list_add (M, (void*) er);
-
         }
+
+        //deleting the edge from G.E and updating edges index
+        n = er->index;
+        G.E[n] = G.E[G.edge_n - 1];
+        G.E[G.edge_n - 1] = *er;
+        er->index = G.edge_n - 1;
+        G.E[n].index = n;
+        G.edge_n--;
+
+        list_add (M, (void*) er);
 
     }
 
