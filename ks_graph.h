@@ -25,9 +25,9 @@ typedef struct edge_repr
     int u;
     int v;
 
-    //position of edge (u,v) in u.L list//--
-    Element *pos_u;                     //  |-> Should really be pointers?
-    //position of edge(u,v) in v.L list //--
+    //position of edge (u,v) in u.L list
+    Element *pos_u;
+    //position of edge(u,v) in v.L list 
     Element *pos_v;
 }Edge_repr;
 

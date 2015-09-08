@@ -8,12 +8,6 @@
 #include "ks_graph.h"
 
 void
-swap_last ()
-{
-
-}
-
-void
 greedy_matching (Graph G)
 {
     srand (time (NULL));
@@ -40,7 +34,9 @@ greedy_matching (Graph G)
             er = e->er;
 
             list_delete (G.V[er->u].L, er->pos_u);
+            vertex_set_degree (&G.V[er->u]);
             list_delete (G.V[er->v].L, er->pos_v);
+            vertex_set_degree (&G.V[er->v]);
         }
         else
         {
