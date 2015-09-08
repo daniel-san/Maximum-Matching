@@ -115,7 +115,7 @@ queue_destroy (Queue *q)
     Element *e;
     if (q != NULL)
     {
-        while(q->queue_size > 0)
+        while (q->queue_size > 0)
         {
             e = queue_dequeue(q);
             free(e->data);
@@ -191,12 +191,12 @@ list_destroy (List *l)
     Element *e;
     if (l != NULL)
     {
-        while(l->list_size > 0)
+        while (l->list_size > 0)
         {
             e = list_pop(l);
             free(e->data);
             free(e);
         }
     }
-    free(l);
+    free (l);
 }
