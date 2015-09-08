@@ -171,6 +171,21 @@ list_pop (List *l)
 }
 
 void
+list_delete (List *l, Element *e)
+{
+    Element *temp;
+    if (l != NULL && e != NULL)
+    {
+        temp = l->head;
+        while (temp->next != e)
+            temp = temp->next;
+        temp->next = e->next;
+
+        free (e);
+    }
+}
+
+void
 list_destroy (List *l)
 {
     Element *e;

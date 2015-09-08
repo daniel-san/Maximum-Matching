@@ -51,4 +51,5 @@ void queue_destroy (Queue *q);
 List* list_create ();
 void list_add (List *l, void *data);
 Element* list_pop (List *l);
+void list_delete (List *l, Element* e);
 void list_destroy (List *l);
