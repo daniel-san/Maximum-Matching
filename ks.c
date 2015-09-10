@@ -7,7 +7,7 @@
 #include <time.h>
 #include "ks_graph.h"
 
-void
+List *
 greedy_matching (Graph G)
 {
     srand (time (NULL));
@@ -56,5 +56,6 @@ greedy_matching (Graph G)
         list_add (M, (void*) er);
 
     }
+    return M;
 
 }
