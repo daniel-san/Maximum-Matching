@@ -24,7 +24,7 @@ class Graph ():
         self.vertex_n = vertex_n
         self.vertex1_n = 0
         self.edge_n = edge_n
-        self.V = []
+        self.V = {} 
         self.V1 = []
         self.E = []
 
@@ -38,7 +38,7 @@ def greedy_matching (G):
             G.V1[n], G.V1[G.vertex1_n - 1] = G.V1[G.vertex1_n - 1], G.V1[n]
             G.vertex1_n -= 1
 
-            edge = pop(v.edges)
+            edge = pop(G.V[v].edges)
 
         else:
             n = rand(G.edge_n - 1)
@@ -47,3 +47,7 @@ def greedy_matching (G):
         G.E[n], G.E[G.edge_n - 1] = G.E[G.edge_n - 1], G.E[n]
         G.edge_n -= 1
         M.append(edge)
+
+def augmenting_path():
+    pass
+
