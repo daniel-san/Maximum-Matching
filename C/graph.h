@@ -1,9 +1,13 @@
 #include "adt.h"
 
 typedef struct vertex{
+    //assuming vertex ids start at 0 to n-1, n being the total number of vertices
     int id;
     int visited;
-    List* neighbors;
+    // 0 when vertex is free (unmatched), 1 when the vertex is matched
+    int matched;
+    //think of a way to build this as an external to avoid high memory usage/movement
+    //List* neighbors; 
 } Vertex;
 
 typedef struct edge{
