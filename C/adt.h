@@ -2,6 +2,10 @@
 
 //Rough implementation draft -- Expect improvements/changes in code and file structure
 
+typedef enum{
+    False, True
+} Bool;
+
 /**
  * Basic element
  * TODO: Verify if it's good to add an extra attribute 
@@ -55,5 +59,7 @@ void queue_destroy (Queue *q);
 List* list_create ();
 void list_add (List *l, void *data);
 Element* list_pop (List *l);
+Element* list_n_get (List *l, int n); //does not delete the element from l
+Bool list_is_empty (List *l);
 void list_delete (List *l, Element* e);
 void list_destroy (List *l);

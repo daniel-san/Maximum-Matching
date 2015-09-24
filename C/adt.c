@@ -124,6 +124,7 @@ queue_destroy (Queue *q)
     }
     free (q);
 }
+
 //list functions
 
 List *
@@ -168,6 +169,31 @@ list_pop (List *l)
         l->list_size--;
     }
     return list_head; 
+}
+
+
+/*
+ * Iterate through the list, with the first element being treated 
+ * as element 0, and the last as list_size - 1
+ */
+Element *
+list_n_get (List *l, int n)
+{
+    int i = 0;
+    Element *el = l->head;
+    while (i < n)
+    {
+        el = el->next;
+        i++;
+    }
+
+    return el;
+}
+
+Bool
+list_is_empty (List *l)
+{
+    return (l->head == NULL); 
 }
 
 void

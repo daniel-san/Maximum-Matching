@@ -8,6 +8,7 @@ vertex_create (int id)
     v.id = id;
     v.visited = UNVISITED;
     v.matched = UNMATCHED;
+    v.neighbors = list_create();
     return v;
 }
 
@@ -17,6 +18,9 @@ edge_create (Vertex *v1, Vertex *v2)
     Edge e;
     e.v1 = v1;
     e.v2 = v2;
+
+    list_add (v1->neighbors, (void *) v2);
+    list_add (v2->neighbors, (void *) v1);
     return e;
 }
 
