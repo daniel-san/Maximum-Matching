@@ -67,10 +67,26 @@ initial_matching (Graph *G)
 /*
  * Subroutine SEARCH
  */
-void 
-search()
+Bool
+search(Graph *G)
 {
+    Element *el;
+    Vertex *v;
 
+    //preparing to start the first phase: Search
+    List *exposed_vertices = get_exposed_vertices (G);
+
+
+    //the lines below are already part of search execution
+    for (el = exposed_vertices->head; el != NULL; el = el->next)
+    {
+        v = (Vertex *) el->data;
+        v->evenlevel = 0;
+    }
+
+
+
+    return False;
 }
 
 List * 
@@ -78,27 +94,23 @@ matching (Graph *G)
 {
     //Loop variables
     int i;
-    Element *el;
 
+    Bool has_augmenting_path = True;
     Vertex *v;
     List *M = initial_matching (G);
-    //preparing to start the first phase: Search
-    List *exposed_vertices = get_exposed_vertices (G);
-    
+    List *candidates = list_create ();
+    List *bridges = list_create ();
+        
     //setting the evenlevel and oddlevel of all vertices to infinity(-1)
     for (i = 0; i < G->vertex_n; i++)
     {
         G->v[i].evenlevel = G->v[i].oddlevel = INFINITY; 
     }
     
-    //the lines below are already part of search execution
-    for (el = exposed_vertices->head; el != NULL; el = el->next)
+    while (has_augmenting_path)
     {
-        v = (Vertex *) el->data;
-        v->evenlevel = 0;
+        has_augmenting_path = search(G);
     }
-    
-    search();
     
     return M;
 }

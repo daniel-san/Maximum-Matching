@@ -35,6 +35,10 @@ typedef struct list
 	Element *head;
 } List;
 
+/*
+ * TODO: add empty verification functions
+ */
+
 //stack functions
 Stack* stack_create ();
 void stack_push (Stack *s, void *data);

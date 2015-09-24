@@ -6,7 +6,7 @@ vertex_create (int id)
 {
     Vertex v;
     v.id = id;
-    v.visited = 0;
+    v.visited = UNVISITED;
     v.matched = UNMATCHED;
     return v;
 }
