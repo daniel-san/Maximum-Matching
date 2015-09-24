@@ -15,6 +15,10 @@ all:
 				../graph.o \
 				../adt.o \
 				../graph_generator.o
+	cd C/test; ${CC} ${CF:AGS} mv.c -o mv \
+				../adt.o \
+				../mv_graph.o \
+				../mv.o
 clean:
 	cd C; rm -rf *.o
-	cd C/test; rm -rf graph graph_generator search 
+	cd C/test; rm -rf graph graph_generator search mv
