@@ -3,7 +3,7 @@
  * to find a maximum matching in a given graph. It is the fastest 
  * known algorithm for finding a maximum matching.
  */
-#include <stdlib>
+#include <stdlib.h>
 #include <time.h>
 #include "graph.h"
 #include "adt.h"
@@ -16,7 +16,6 @@ initial_matching (Graph G)
     int n,m;
     int i;
     Edge *e;
-    Vertex *v;
 
     n = rand () % G.edge_n;
     e = &G.e[n];
@@ -31,9 +30,15 @@ initial_matching (Graph G)
         {
             //if both vertices are not matched, add e to M
             list_add (M, (void *) e);
-
         }
     }
 
     return M;
+}
+
+List * 
+matching (Graph G)
+{
+    List *M = initial_matching (G);
+
 }
