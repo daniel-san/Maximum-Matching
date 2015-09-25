@@ -8,6 +8,9 @@ vertex_create (int id)
     v.id = id;
     v.visited = UNVISITED;
     v.matched = UNMATCHED;
+    v.predecessors = list_create();
+    v.successors = list_create();
+    v.anomalies = list_create();
     v.neighbors = list_create();
     return v;
 }

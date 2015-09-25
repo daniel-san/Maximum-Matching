@@ -5,6 +5,8 @@ default: all
 
 all:
 	cd C; ${CC} ${CFLAGS} -c *.c
+	cd C/test; ${CC} ${CFLAGS} adt.c -o adt \
+				../adt.o
 	cd C/test; ${CC} ${CFLAGS} graph.c -o graph \
 				../adt.o \
 				../graph.o

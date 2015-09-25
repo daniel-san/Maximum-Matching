@@ -4,6 +4,7 @@
  * known algorithm for finding a maximum matching.
  */
 #include <stdlib.h>
+#include <stdio.h>
 #include <time.h>
 #include "mv_graph.h"
 
@@ -191,25 +192,28 @@ matching (Graph *G)
     int phase = 0;
     Vertex *v;
     List *M = initial_matching (G);
+
     while(has_augmenting_path)
     {
         //List of lists
         List *candidates = list_create ();
         List *bridges = list_create ();
             
+
         //setting the evenlevel and oddlevel of all vertices to infinity(-1)
         for (i = 0; i < G->vertex_n; i++)
         {
             initialize_vertex (&G->v[i]);
+
             list_add (candidates, (void *) list_create ());
             list_add (bridges, (void *) list_create ());
         }
         
+
         for (i = 0; i < G->edge_n; i++)
         {
             initialize_edge(&G->e[i]);
         }
-
         has_augmenting_path = search(G, candidates, bridges, phase);
     }
     return M;

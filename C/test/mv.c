@@ -33,6 +33,7 @@ main (int argc, char* argv[])
 
     //M = initial_matching (&G);
     M = matching(&G);
+
     for (el = M->head; el != NULL; el = el->next)
     {
         e_temp = (Edge*) el->data;
