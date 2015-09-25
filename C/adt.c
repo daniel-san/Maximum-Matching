@@ -49,7 +49,6 @@ stack_destroy (Stack *s)
         while(s->stack_size > 0)
         {
             e = stack_pop(s);
-            free (e->data);
             free (e);
         }
     }
@@ -118,7 +117,6 @@ queue_destroy (Queue *q)
         while (q->queue_size > 0)
         {
             e = queue_dequeue(q);
-            free (e->data);
             free (e);
         }
     }
@@ -208,8 +206,6 @@ list_delete (List *l, Element *e)
 
         temp->next = e->next;
         l->list_size--;
-
-        free (e->data);
         free (e);
     }
 }
@@ -223,7 +219,6 @@ list_destroy (List *l)
         while (l->list_size > 0)
         {
             e = list_pop (l);
-            free (e->data);
             free (e);
         }
     }
