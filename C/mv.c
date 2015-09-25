@@ -4,7 +4,6 @@
  * known algorithm for finding a maximum matching.
  */
 #include <stdlib.h>
-#include <stdio.h>
 #include <time.h>
 #include "mv_graph.h"
 
@@ -129,12 +128,13 @@ initial_matching (Graph *G)
  * Note: not treating blossoms yet
  */
 Bool
-search(Graph *G, List *candidates, List *bridges, int phase)
+search(Graph *G, List *candidates, List *bridges)
 {
     int i = 0, j;
     Element *el;
     Vertex *v, *u;
-    List * bridges_el;
+    List *temp_list;
+    List *bridges_el;
     //probably will become an external value
     Bool last_phase_has_augmenting_path = False;
     List *candidates_el = (List *) list_n_get(candidates, 0)->data;
@@ -148,7 +148,8 @@ search(Graph *G, List *candidates, List *bridges, int phase)
         list_add (candidates_el, (void *) v);
     }
 
-    candidates_el = (List *) list_n_get(candidates, i);
+    candidates_el = (List *) list_n_get(candidates, i)->data;
+
     while (!list_is_empty (candidates_el) 
            && !last_phase_has_augmenting_path)
     {
@@ -171,10 +172,32 @@ search(Graph *G, List *candidates, List *bridges, int phase)
                     if (u->oddlevel != INFINITY)
                     {
                         j = (u->oddlevel + v->oddlevel)/2;
-                        bridges_el = (List *) list_n_get(bridges, j);
+                        bridges_el = (List *) list_n_get(bridges, j)->data;
+                        //insert edge (u,v) in bridges_el
+                    }
+                    if (u->evenlevel == INFINITY)
+                    {
+                        list_destroy (u->predecessors);
+                        u->predecessors = list_create();
+                        list_add (u->predecessors, (void *) v);
+
+                        list_destroy (v->successors);
+                        v->successors = list_create();
+                        list_add (v->successors, (void *) u);
+
+                        u->count = 1;
+                        u->evenlevel = i + 1;
+                        
+                        temp_list = (List *) list_n_get (candidates, i + 1)->data;
+                        list_add (temp_list, (void *) u);
                     }
                 }
             }
+        }
+        bridges_el = (List *) list_n_get(bridges, i)->data;
+        for (el = bridges_el->head; el != NULL; el = el->next)
+        {
+            //for each edge with both vertices unerased, call BLOSS-AUG
         }
         i++;
     }
@@ -189,7 +212,6 @@ matching (Graph *G)
     //Loop variables
     int i;
     Bool has_augmenting_path = True;
-    int phase = 0;
     Vertex *v;
     List *M = initial_matching (G);
 
@@ -214,7 +236,7 @@ matching (Graph *G)
         {
             initialize_edge(&G->e[i]);
         }
-        has_augmenting_path = search(G, candidates, bridges, phase);
+        has_augmenting_path = search(G, candidates, bridges);
     }
     return M;
 }

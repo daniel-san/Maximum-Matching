@@ -53,6 +53,7 @@ void stack_destroy (Stack *s);
 Queue* queue_create ();
 void queue_enqueue (Queue *q, void *data);
 Element* queue_dequeue (Queue *q);
+Element* queue_n_get (Queue *q, int n);
 void queue_destroy (Queue *q);
 
 //list functions

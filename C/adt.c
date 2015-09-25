@@ -109,6 +109,24 @@ queue_dequeue (Queue *q)
     return queue_first;
 }
 
+/*
+ * Iterate through the queue, with the first element being treated 
+ * as element 0, and the last as queue_size - 1
+ */
+Element *
+queue_n_get (Queue *q, int n)
+{
+    int i = 0;
+    Element *el = q->first;
+    while (i < n)
+    {
+        el = el->next;
+        i++;
+    }
+
+    return el;
+}
+
 void
 queue_destroy (Queue *q)
 {

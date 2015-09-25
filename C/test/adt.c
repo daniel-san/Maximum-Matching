@@ -17,8 +17,8 @@ main (int argc, char* argv[])
 
     for (el = l->head; el != NULL; el = el->next)
     {
-        printf ("%d\n", (int*) el->data);
+        printf ("%d\n", (int) el->data);
     }
-
+    
     list_destroy(l);
 }
