@@ -39,6 +39,26 @@ initialize_edge (Edge *e)
 }
 
 /*
+ * Returns a list containing the free edges of 
+ * a graph G
+ */
+List * 
+get_free_edges (Graph *G)
+{
+    int i;
+    List *free_edges = list_create();
+    for (i = 0; i < G->edge_n; i++)
+    {
+        if (G->e[i].matched != MATCHED)
+        {
+            list_add (free_edges, (void*) &G->e[i]);
+        }
+    }
+
+    return free_edges;
+}
+
+/*
  * Returns a list containing the exposed vertices of 
  * a graph G.
  */
@@ -46,16 +66,16 @@ List *
 get_exposed_vertices (Graph *G)
 {
     int i;
-    List *exposed_v = list_create();
+    List *exposed_vertices = list_create();
     for (i = 0; i < G->vertex_n; i++)
     {
         if (G->v[i].matched != MATCHED)
         {
-            list_add (exposed_v, (void*) &G->v[i]);
+            list_add (exposed_vertices, (void*) &G->v[i]);
         }
     }
 
-    return exposed_v;
+    return exposed_vertices;
 }
 
 
@@ -92,6 +112,10 @@ initial_matching (Graph *G)
         {
             //if both vertices are not matched, add e to M
             e->v1->matched = e->v2->matched = MATCHED;
+            e->matched = MATCHED;
+            e->v1->mate = e->v2;
+            e->v2->mate = e->v1;
+
             list_add (M, (void *) e);
         }
     }
@@ -106,17 +130,16 @@ initial_matching (Graph *G)
 Bool
 search(Graph *G, List *candidates, List *bridges, int phase)
 {
-    int i = 0;
+    int i = 0, j;
     Element *el;
-    Vertex *v;
+    Vertex *v, *u;
+    List * bridges_el;
     //probably will become an external value
     Bool last_phase_has_augmenting_path = False;
     List *candidates_el = (List *) list_n_get(candidates, 0)->data;
 
-    //preparing to start the first phase: Search
     List *exposed_vertices = get_exposed_vertices (G);
 
-    //the lines below are already part of search execution
     for (el = exposed_vertices->head; el != NULL; el = el->next)
     {
         v = (Vertex *) el->data;
@@ -141,12 +164,18 @@ search(Graph *G, List *candidates, List *bridges, int phase)
             for (el = candidates_el->head; el != NULL; el = el->next)
             {
                 v = (Vertex *) el->data;
-                if (v->bloom == -1)
+                if (v->bloom == -1 && v->matched == MATCHED)
                 {
-
+                    u = v->mate;
+                    if (u->oddlevel != INFINITY)
+                    {
+                        j = (u->oddlevel + v->oddlevel)/2;
+                        bridges_el = (List *) list_n_get(bridges, j);
+                    }
                 }
             }
         }
+        i++;
     }
     
 
