@@ -100,6 +100,11 @@ initial_matching (Graph *G)
      */
     e = &G->e[n];
     e->v1->matched = e->v2->matched = MATCHED;
+    e->matched = MATCHED;
+    e->v1->mate = e->v2;
+    e->v2->mate = e->v1;
+    e->v1->matched_edge = e;
+    e->v2->matched_edge = e;
     
     list_add (M, (void *) e);
     
@@ -115,12 +120,19 @@ initial_matching (Graph *G)
             e->matched = MATCHED;
             e->v1->mate = e->v2;
             e->v2->mate = e->v1;
-
+            e->v1->matched_edge = e;
+            e->v2->matched_edge = e;
             list_add (M, (void *) e);
         }
     }
 
     return M;
+}
+
+void
+bloss_aug (Edge *e)
+{
+
 }
 
 /*
@@ -133,6 +145,7 @@ search(Graph *G, List *candidates, List *bridges)
     int i = 0, j;
     Element *el;
     Vertex *v, *u;
+    Edge *e;
     List *temp_list;
     List *bridges_el;
     //probably will become an external value
@@ -198,6 +211,11 @@ search(Graph *G, List *candidates, List *bridges)
         for (el = bridges_el->head; el != NULL; el = el->next)
         {
             //for each edge with both vertices unerased, call BLOSS-AUG
+            e = (Edge *) el->data;
+            if (e->v1->status != ERASED && e->v2->status != ERASED)
+            {
+                bloss_aug(e);
+            }
         }
         i++;
     }
