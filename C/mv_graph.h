@@ -15,9 +15,9 @@ typedef struct vertex{
     //used for DFS in FINDPATH
     Label visited;
     Label matched;
-    struct vertex *mate;//in case the vertex is matched 
-    //struct edge *matched_edge; //maybe will be used...
-
+    //in case the vertex is matched
+    struct vertex *mate;
+    struct edge *matched_edge;
     //ERASED or UNERASED -- used on disjoint augmenting paths
     Label status;
     //LEFT or RIGHT -- used in BLOSS-AUG
@@ -58,6 +58,7 @@ Vertex vertex_create (int id);
 Edge edge_create (Vertex *v1, Vertex *v2);
 Graph graph_create (size_t vertex_n, size_t edge_n);
 Edge get_edge_by_vertices (Graph G, int v1, int v2);
+
 //Matching functions
 List * initial_matching (Graph *G);
 List * matching (Graph *G);

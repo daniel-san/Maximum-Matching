@@ -137,7 +137,6 @@ bloss_aug (Edge *e)
 
 /*
  * Subroutine SEARCH
- * Note: not treating blossoms yet
  */
 Bool
 search(Graph *G, List *candidates, List *bridges)
@@ -187,15 +186,16 @@ search(Graph *G, List *candidates, List *bridges)
                         j = (u->oddlevel + v->oddlevel)/2;
                         bridges_el = (List *) list_n_get(bridges, j)->data;
                         //insert edge (u,v) in bridges_el
+                        list_add (bridges_el, u->matched_edge);
                     }
                     if (u->evenlevel == INFINITY)
                     {
-                        list_destroy (u->predecessors);
-                        u->predecessors = list_create();
+                        //list_destroy (u->predecessors);
+                        //u->predecessors = list_create();
                         list_add (u->predecessors, (void *) v);
 
-                        list_destroy (v->successors);
-                        v->successors = list_create();
+                        //list_destroy (v->successors);
+                        //v->successors = list_create();
                         list_add (v->successors, (void *) u);
 
                         u->count = 1;
@@ -207,6 +207,7 @@ search(Graph *G, List *candidates, List *bridges)
                 }
             }
         }
+
         bridges_el = (List *) list_n_get(bridges, i)->data;
         for (el = bridges_el->head; el != NULL; el = el->next)
         {
