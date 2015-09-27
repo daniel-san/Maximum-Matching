@@ -141,14 +141,18 @@ bloss_aug (Edge *e)
 Bool
 search(Graph *G, List *candidates, List *bridges)
 {
+    //mostly temporary or loop variables
     int i = 0, j;
-    Element *el;
+    Element *el, *el_1; //el_1 is used for nested list iteration
     Vertex *v, *u;
     Edge *e;
     List *temp_list;
-    List *bridges_el;
+    
     //probably will become an external value
     Bool last_phase_has_augmenting_path = False;
+    
+    //used to access one of the lists inside bridges or candidates list
+    List *bridges_el;
     List *candidates_el = (List *) list_n_get(candidates, 0)->data;
 
     List *exposed_vertices = get_exposed_vertices (G);
@@ -170,7 +174,44 @@ search(Graph *G, List *candidates, List *bridges)
             for (el = candidates_el->head; el != NULL; el = el->next)
             {
                 v = (Vertex *) el->data;
+
                 //access unerased neighbors of v, and verify free edges between them
+                temp_list = v->neighbors;
+                for (el_1 = temp_list->head; el_1 != NULL; el_1 = el_1->next)
+                {
+                    u = (Vertex*) el_1->data;
+                    if (u->status == ERASED)
+                        continue;
+
+                    e = get_edge_by_vertices(G, v, u);
+                    if (e->matched == UNMATCHED)
+                    {
+                        if (u->evenlevel != INFINITY)
+                        {
+                            j = (u->oddlevel + v->oddlevel)/2;
+                            bridges_el = (List *) list_n_get (bridges, j)->data;
+                            list_add (bridges_el, e);
+                        }
+                        else
+                        {
+                            if (u->oddlevel == INFINITY)
+                            {
+                                u->oddlevel = i + 1;
+                            }
+                            if (u->oddlevel == i + 1)
+                            {
+                                u->count++;
+                                list_add (u->predecessors, (void *) v);
+                                list_add (v->successors, (void *) u);
+                                list_add ((List *) list_n_get (candidates, i + 1),
+                                          (void *) u);
+                            }
+                            if (u->oddlevel < i)
+                                list_insert (u->anomalies, (void *) v);
+                        }
+                    }
+                }
+
             }
         }
         else
@@ -186,7 +227,7 @@ search(Graph *G, List *candidates, List *bridges)
                         j = (u->oddlevel + v->oddlevel)/2;
                         bridges_el = (List *) list_n_get(bridges, j)->data;
                         //insert edge (u,v) in bridges_el
-                        list_add (bridges_el, u->matched_edge);
+                        list_add (bridges_el, (void*) u->matched_edge);
                     }
                     if (u->evenlevel == INFINITY)
                     {

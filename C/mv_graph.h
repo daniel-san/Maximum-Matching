@@ -56,8 +56,9 @@ typedef struct graph{
 //Graph adt functions
 Vertex vertex_create (int id);
 Edge edge_create (Vertex *v1, Vertex *v2);
+Edge* get_edge_by_vertices (Graph *G, Vertex* v1, Vertex* v2);
 Graph graph_create (size_t vertex_n, size_t edge_n);
-Edge get_edge_by_vertices (Graph G, int v1, int v2);
+
 
 //Matching functions
 List * initial_matching (Graph *G);

@@ -12,6 +12,7 @@ vertex_create (int id)
     v.successors = list_create();
     v.anomalies = list_create();
     v.neighbors = list_create();
+    v.count = 0;
     return v;
 }
 
@@ -21,10 +22,15 @@ edge_create (Vertex *v1, Vertex *v2)
     Edge e;
     e.v1 = v1;
     e.v2 = v2;
-
+    e.matched = UNMATCHED;
     list_add (v1->neighbors, (void *) v2);
     list_add (v2->neighbors, (void *) v1);
     return e;
+}
+
+Edge* get_edge_by_vertices (Graph *G, Vertex* v1, Vertex* v2)
+{
+    //search the list of edges for the edge made from these 2 vertices
 }
 
 Graph
