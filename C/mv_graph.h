@@ -53,6 +53,11 @@ typedef struct graph{
     Edge* e;
 } Graph;
 
+typedef struct bloom{
+    int id;
+    Vertex* base;
+} Bloom;
+
 //Graph adt functions
 Vertex vertex_create (int id);
 Edge edge_create (Vertex *v1, Vertex *v2);
@@ -63,3 +68,4 @@ Graph graph_create (size_t vertex_n, size_t edge_n);
 //Matching functions
 List * initial_matching (Graph *G);
 List * matching (Graph *G);
+Bloom bloom_create ();

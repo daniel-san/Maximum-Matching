@@ -28,6 +28,15 @@ initialize_vertex (Vertex *v)
     v->visited = UNVISITED;
 
 }
+
+int 
+vertex_level (Vertex *v)
+{
+    if (v->evenlevel < v->oddlevel)
+        return v->evenlevel;
+    return v->oddlevel;
+}
+
 /*
  * Set some edge attributes to default values
  */
@@ -130,16 +139,75 @@ initial_matching (Graph *G)
 }
 
 void
-bloss_aug (Edge *e)
+findpath ()
 {
 
+}
+
+Bool left_dfs (Vertex *s, Vertex *vl, Vertex *vr,
+               Vertex *DCV, Vertex *barrier)
+{
+    
+    return False;
+}
+
+Bool right_dfs (Vertex *vl, Vertex *vr, Vertex *DCV, Vertex *barrier)
+{
+    return False;
+}
+
+void
+bloss_aug (Edge *e)
+{
+    Vertex *vl, *vr, *DCV, *barrier;
+    Bool bloom_discovered = False;
+    //s = e->v1;
+    //t = e->v2;
+
+    if ((e->v1->bloom != -1) && (e->v2->bloom != -1) 
+        && (e->v1->bloom == e->v2->bloom))
+        return;
+
+    if ((e->v1->bloom != -1))
+    {
+        //vl = base*(Bloom(s)
+    }
+    else
+        vl = e->v1;
+
+    if ((e->v2->bloom != -1))
+    {
+        //vr = base*(Bloom(t))
+    }
+    else
+        vr = e->v2;
+
+    vr->side = LEFT;
+    vr->side = RIGHT;
+
+    barrier = vr;
+
+    while (vl->matched == UNMATCHED && vr->matched == UNMATCHED)
+    {
+       if (vertex_level (vl) >= vertex_level (vr))
+           bloom_discovered = left_dfs (e->v1, vl, vr, DCV, barrier);
+       else
+           bloom_discovered = right_dfs (vl, vr, DCV, barrier);
+
+       if (bloom_discovered)
+           bloom_create ();
+
+    }
+
+    findpath (); //find a path from High=s to Low=vl with B=undefined
+    findpath (); //find a path from High=t to Low=vr with B=undefined
 }
 
 /*
  * Subroutine SEARCH
  */
 Bool
-search(Graph *G, List *candidates, List *bridges)
+search (Graph *G, List *candidates, List *bridges)
 {
     //mostly temporary or loop variables
     int i = 0, j;
@@ -207,7 +275,7 @@ search(Graph *G, List *candidates, List *bridges)
                                           (void *) u);
                             }
                             if (u->oddlevel < i)
-                                list_insert (u->anomalies, (void *) v);
+                                list_add (u->anomalies, (void *) v);
                         }
                     }
                 }
@@ -231,12 +299,12 @@ search(Graph *G, List *candidates, List *bridges)
                     }
                     if (u->evenlevel == INFINITY)
                     {
-                        //list_destroy (u->predecessors);
-                        //u->predecessors = list_create();
+                        list_destroy (u->predecessors);
+                        u->predecessors = list_create();
                         list_add (u->predecessors, (void *) v);
 
-                        //list_destroy (v->successors);
-                        //v->successors = list_create();
+                        list_destroy (v->successors);
+                        v->successors = list_create();
                         list_add (v->successors, (void *) u);
 
                         u->count = 1;
@@ -274,12 +342,21 @@ matching (Graph *G)
     Bool has_augmenting_path = True;
     Vertex *v;
     List *M = initial_matching (G);
+    
+    //List of lists
+    List *candidates;
+    List *bridges;
 
     while(has_augmenting_path)
     {
-        //List of lists
-        List *candidates = list_create ();
-        List *bridges = list_create ();
+        if (!list_is_empty (candidates))
+            list_destroy (candidates);
+
+        if (!list_is_empty (bridges))
+            list_destroy (bridges);
+
+        candidates = list_create ();
+        bridges = list_create ();
             
 
         //setting the evenlevel and oddlevel of all vertices to infinity(-1)
