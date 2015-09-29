@@ -142,7 +142,7 @@ void
 erase (List *Y)
 {
     Vertex *y, *z;
-    Element *el, el_1;
+    Element *el, *el_1;
     for (el = Y->head; el != NULL; el = el->next)
     {
         y = (Vertex *) el->data;
@@ -159,10 +159,31 @@ erase (List *Y)
     }
 }
 
-void
-findpath ()
+//computes the base*() of a bloom
+Vertex *
+base_p ()
 {
 
+}
+
+void
+open ()
+{
+
+}
+
+void
+findpath (Vertex *high, Vertex *low, Bloom B)
+{
+    Vertex *v;
+    List *path = list_create ();
+    if (high == low)
+    {
+        list_add (path, (void *) high);
+        return;
+    }
+
+    v = high;
 }
 
 Bool left_dfs (Graph *G, Vertex *s, Vertex *vl, Vertex *vr,
@@ -173,7 +194,7 @@ Bool left_dfs (Graph *G, Vertex *s, Vertex *vl, Vertex *vr,
     Element *predecessor_el;
     /*change this for: vl can change during the execution, and that need to be 
     treated -- a while loop using list_pop might work*/
-    for (predecessor_el = vl->predecessors->head; predecessors_el != NULL;
+    for (predecessor_el = vl->predecessors->head; predecessor_el != NULL;
          predecessor_el = predecessor_el->next)
     {
         u = (Vertex *) predecessor_el->data;
@@ -217,7 +238,7 @@ Bool right_dfs (Graph *G, Vertex *vl, Vertex *vr, Vertex *DCV, Vertex *barrier)
     Element *predecessor_el;
     /*change this for: vr can change during the execution, and that need to be 
     treated -- a while loop using list_pop might work*/
-    for (predecessor_el = vr->predecessors->head; predecessors_el != NULL;
+    for (predecessor_el = vr->predecessors->head; predecessor_el != NULL;
          predecessor_el = predecessor_el->next)
     {
         u = (Vertex *) predecessor_el->data;
@@ -263,7 +284,7 @@ Bool right_dfs (Graph *G, Vertex *vl, Vertex *vr, Vertex *DCV, Vertex *barrier)
 }
 
 void
-bloss_aug (Edge *e)
+bloss_aug (Graph *G, Edge *e)
 {
     Vertex *vl, *vr, *DCV, *barrier;
     Bool bloom_discovered = False;
@@ -305,8 +326,8 @@ bloss_aug (Edge *e)
 
     }
 
-    findpath (); //find a path from High=s to Low=vl with B=undefined
-    findpath (); //find a path from High=t to Low=vr with B=undefined
+    //findpath (); //find a path from High=s to Low=vl with B=undefined
+    //findpath (); //find a path from High=t to Low=vr with B=undefined
 }
 
 /*
@@ -430,7 +451,7 @@ search (Graph *G, List *candidates, List *bridges)
             e = (Edge *) el->data;
             if (e->v1->status != ERASED && e->v2->status != ERASED)
             {
-                bloss_aug(e);
+                bloss_aug(G, e);
             }
         }
         i++;
