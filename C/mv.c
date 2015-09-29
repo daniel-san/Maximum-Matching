@@ -139,20 +139,126 @@ initial_matching (Graph *G)
 }
 
 void
+erase (List *Y)
+{
+    Vertex *y, *z;
+    Element *el, el_1;
+    for (el = Y->head; el != NULL; el = el->next)
+    {
+        y = (Vertex *) el->data;
+        y->status = ERASED;
+        for (el_1 = y->successors->head; el_1 != NULL; el_1 = el_1->next)
+        {
+            if (z->status == UNERASED)
+            {
+                z->count--;
+                if (z->count == 0)
+                    list_add (Y, (void *) z);
+            }
+        }
+    }
+}
+
+void
 findpath ()
 {
 
 }
 
-Bool left_dfs (Vertex *s, Vertex *vl, Vertex *vr,
+Bool left_dfs (Graph *G, Vertex *s, Vertex *vl, Vertex *vr,
                Vertex *DCV, Vertex *barrier)
 {
-    
+    Vertex *u;
+    Edge *e;
+    Element *predecessor_el;
+    /*change this for: vl can change during the execution, and that need to be 
+    treated -- a while loop using list_pop might work*/
+    for (predecessor_el = vl->predecessors->head; predecessors_el != NULL;
+         predecessor_el = predecessor_el->next)
+    {
+        u = (Vertex *) predecessor_el->data;
+        if (u->status == ERASED)
+            continue;
+
+        e = get_edge_by_vertices (G, vl, u);
+        if (e->used == UNUSED)
+        {
+            e->used = USED;
+        }
+
+        if (u->bloom != -1)
+        {
+            //u = base*(u->bloom)
+        }
+
+        if (u->side != LEFT && u->side != RIGHT)
+        {
+            u->side = LEFT;
+            u->parent = vl; 
+            vl = u;
+        }
+
+    }
+
+    if (vl == s)
+    {
+        vl = vl->parent;
+        return True;
+    }
+
     return False;
 }
 
-Bool right_dfs (Vertex *vl, Vertex *vr, Vertex *DCV, Vertex *barrier)
+//maybe a void return...?
+Bool right_dfs (Graph *G, Vertex *vl, Vertex *vr, Vertex *DCV, Vertex *barrier)
 {
+    Vertex *u;
+    Edge *e;
+    Element *predecessor_el;
+    /*change this for: vr can change during the execution, and that need to be 
+    treated -- a while loop using list_pop might work*/
+    for (predecessor_el = vr->predecessors->head; predecessors_el != NULL;
+         predecessor_el = predecessor_el->next)
+    {
+        u = (Vertex *) predecessor_el->data;
+        if (u->status == ERASED)
+            continue;
+
+        e = get_edge_by_vertices (G, vr, u);
+        if (e->used == UNUSED)
+        {
+            e->used = USED;
+        }
+
+        if (u->bloom != -1)
+        {
+            //u = base*(u->bloom)
+        }
+
+        if (u->side != LEFT && u->side != RIGHT)
+        {
+            u->side = RIGHT;
+            u->parent = vr; 
+            vr = u;
+            return False;
+        }
+        else
+        {
+            if (u = vl)
+                DCV = u;
+        }
+    }
+
+    if (vr == barrier)
+    {
+        vr = DCV;
+        barrier = DCV;
+        vr->side = RIGHT;
+        vl = vl->parent;
+    }
+    else
+        vr = vr->parent;
+
     return False;
 }
 
@@ -170,14 +276,14 @@ bloss_aug (Edge *e)
 
     if ((e->v1->bloom != -1))
     {
-        //vl = base*(Bloom(s)
+        //vl = base*(s->bloom)
     }
     else
         vl = e->v1;
 
     if ((e->v2->bloom != -1))
     {
-        //vr = base*(Bloom(t))
+        //vr = base*(t->bloom)
     }
     else
         vr = e->v2;
@@ -190,9 +296,9 @@ bloss_aug (Edge *e)
     while (vl->matched == UNMATCHED && vr->matched == UNMATCHED)
     {
        if (vertex_level (vl) >= vertex_level (vr))
-           bloom_discovered = left_dfs (e->v1, vl, vr, DCV, barrier);
+           bloom_discovered = left_dfs (G, e->v1, vl, vr, DCV, barrier);
        else
-           bloom_discovered = right_dfs (vl, vr, DCV, barrier);
+           bloom_discovered = right_dfs (G, vl, vr, DCV, barrier);
 
        if (bloom_discovered)
            bloom_create ();

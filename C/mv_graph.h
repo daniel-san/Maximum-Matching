@@ -17,6 +17,8 @@ typedef struct vertex{
     Label matched;
     //in case the vertex is matched
     struct vertex *mate;
+    //used in leftdsf and rightdfs
+    struct vertex *parent;
     struct edge *matched_edge;
     //ERASED or UNERASED -- used on disjoint augmenting paths
     Label status;
@@ -56,6 +58,7 @@ typedef struct graph{
 typedef struct bloom{
     int id;
     Vertex* base;
+    Queue *path;
 } Bloom;
 
 //Graph adt functions
