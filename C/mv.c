@@ -161,9 +161,11 @@ erase (List *Y)
 
 //computes the base*() of a bloom
 Vertex *
-base_p ()
+base_p (Vertex *v, List* blooms)
 {
-
+    Vertex *top = node;
+    Bloom *b;
+    
 }
 
 void
