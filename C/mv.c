@@ -147,6 +147,7 @@ bloom_create (Graph *G, Edge* bridge, int phase,
     int j;
     Element *el, *el_1;
     Vertex *z, *y;
+    Edge *y_z;
     Bloom *B = malloc (sizeof (Bloom));
 
     DCV->side = -1; //undefining the side mark
@@ -173,12 +174,16 @@ bloom_create (Graph *G, Edge* bridge, int phase,
                 z = (Vertex *) el_1->data;
                 j = (y->evenlevel + z->evenlevel)/2;
                 //mark the edge (y,z) used and add it to bridges(j)
+                y_z = get_edge_by_vertices (G, y, z);
+                list_add ((List *) list_n_get (bridges, j)->data, (void *) y_z);
             }
         }
     }
     
 }
-
+/**
+ * Change the status of a list of vertices to ERASED
+ */
 void
 erase (List *Y)
 {
