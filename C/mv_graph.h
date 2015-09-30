@@ -53,12 +53,14 @@ typedef struct graph{
     size_t edge_n;
     Vertex* v;
     Edge* e;
+
+    Queue *blooms;
 } Graph;
 
 typedef struct bloom{
     int id;
-    Vertex* base;
-    Queue *path;
+    Vertex* base, *left_peak, *right_peak;
+    List *vertices;
 } Bloom;
 
 //Graph adt functions
@@ -69,6 +71,9 @@ Graph graph_create (size_t vertex_n, size_t edge_n);
 
 
 //Matching functions
+int vertex_level (Vertex *v);
 List * initial_matching (Graph *G);
 List * matching (Graph *G);
-Bloom bloom_create ();
+void bloom_create (Graph *G, Edge *bridge, int phase,
+                   List *candidates, List *bridges,
+                   List *bloom_vertices, Vertex *DCV);

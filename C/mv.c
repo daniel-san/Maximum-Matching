@@ -26,6 +26,7 @@ initialize_vertex (Vertex *v)
     v->count = 0;
     v->status = UNERASED;
     v->visited = UNVISITED;
+    v->side = -1;
 
 }
 
@@ -139,6 +140,46 @@ initial_matching (Graph *G)
 }
 
 void
+bloom_create (Graph *G, Edge* bridge, int phase,
+              List *candidates, List *bridges,
+              List *bloom_vertices, Vertex *DCV)
+{
+    int j;
+    Element *el, *el_1;
+    Vertex *z, *y;
+    Bloom *B = malloc (sizeof (Bloom));
+
+    DCV->side = -1; //undefining the side mark
+    B->vertices = bloom_vertices; //vertices marked left or right during bloss_aug
+    B->id = G->blooms->queue_size;
+    B->left_peak = bridge->v1;//s
+    B->right_peak = bridge->v2; //t
+    B->base = DCV;
+
+    for (el = B->vertices->head; el != NULL; el = el->next)
+    {
+        y = (Vertex *) el->data;
+        y->bloom = B->id;
+
+        if (vertex_level (y) % 2 == 0)//if y is outer
+            y->oddlevel = 2 * phase + 1 - y->evenlevel;
+        else //if y is inner
+        {
+            y->evenlevel = 2 * phase + 1 - y->oddlevel;
+            list_add ((List *) list_n_get (candidates, y->evenlevel)->data,
+                         (void *) y);
+            for (el_1 = y->anomalies->head; el_1 != NULL; el_1 = el_1->next)
+            {
+                z = (Vertex *) el_1->data;
+                j = (y->evenlevel + z->evenlevel)/2;
+                //mark the edge (y,z) used and add it to bridges(j)
+            }
+        }
+    }
+    
+}
+
+void
 erase (List *Y)
 {
     Vertex *y, *z;
@@ -163,7 +204,7 @@ erase (List *Y)
 Vertex *
 base_p (Vertex *v, List* blooms)
 {
-    Vertex *top = node;
+    Vertex *top;
     Bloom *b;
     
 }
@@ -189,15 +230,12 @@ findpath (Vertex *high, Vertex *low, Bloom B)
 }
 
 Bool left_dfs (Graph *G, Vertex *s, Vertex *vl, Vertex *vr,
-               Vertex *DCV, Vertex *barrier)
+               Vertex *DCV, Vertex *barrier, List *bloom_vertices)
 {
     Vertex *u;
     Edge *e;
-    Element *predecessor_el;
-    /*change this for: vl can change during the execution, and that need to be 
-    treated -- a while loop using list_pop might work*/
-    for (predecessor_el = vl->predecessors->head; predecessor_el != NULL;
-         predecessor_el = predecessor_el->next)
+    Element *predecessor_el = list_pop (vl->predecessors);
+    while (predecessor_el != NULL)
     {
         u = (Vertex *) predecessor_el->data;
         if (u->status == ERASED)
@@ -217,10 +255,11 @@ Bool left_dfs (Graph *G, Vertex *s, Vertex *vl, Vertex *vr,
         if (u->side != LEFT && u->side != RIGHT)
         {
             u->side = LEFT;
+            list_add (bloom_vertices, (void *) u);
             u->parent = vl; 
             vl = u;
         }
-
+        predecessor_el = list_pop (vl->predecessors);
     }
 
     if (vl == s)
@@ -233,15 +272,13 @@ Bool left_dfs (Graph *G, Vertex *s, Vertex *vl, Vertex *vr,
 }
 
 //maybe a void return...?
-Bool right_dfs (Graph *G, Vertex *vl, Vertex *vr, Vertex *DCV, Vertex *barrier)
+Bool right_dfs (Graph *G, Vertex *vl, Vertex *vr, 
+                Vertex *DCV, Vertex *barrier, List *bloom_vertices)
 {
     Vertex *u;
     Edge *e;
-    Element *predecessor_el;
-    /*change this for: vr can change during the execution, and that need to be 
-    treated -- a while loop using list_pop might work*/
-    for (predecessor_el = vr->predecessors->head; predecessor_el != NULL;
-         predecessor_el = predecessor_el->next)
+    Element *predecessor_el = list_pop (vr->predecessors);
+    while (predecessor_el != NULL)
     {
         u = (Vertex *) predecessor_el->data;
         if (u->status == ERASED)
@@ -261,6 +298,7 @@ Bool right_dfs (Graph *G, Vertex *vl, Vertex *vr, Vertex *DCV, Vertex *barrier)
         if (u->side != LEFT && u->side != RIGHT)
         {
             u->side = RIGHT;
+            list_add (bloom_vertices, (void *) u);
             u->parent = vr; 
             vr = u;
             return False;
@@ -277,6 +315,7 @@ Bool right_dfs (Graph *G, Vertex *vl, Vertex *vr, Vertex *DCV, Vertex *barrier)
         vr = DCV;
         barrier = DCV;
         vr->side = RIGHT;
+        list_add (bloom_vertices, (void *) vr);
         vl = vl->parent;
     }
     else
@@ -286,10 +325,12 @@ Bool right_dfs (Graph *G, Vertex *vl, Vertex *vr, Vertex *DCV, Vertex *barrier)
 }
 
 void
-bloss_aug (Graph *G, Edge *e)
+bloss_aug (Graph *G, Edge *e, List *candidates, List *bridges, int phase)
 {
     Vertex *vl, *vr, *DCV, *barrier;
     Bool bloom_discovered = False;
+    //used in case a bloom is discovered
+    List *bloom_vertices = list_create ();
     //s = e->v1;
     //t = e->v2;
 
@@ -319,12 +360,16 @@ bloss_aug (Graph *G, Edge *e)
     while (vl->matched == UNMATCHED && vr->matched == UNMATCHED)
     {
        if (vertex_level (vl) >= vertex_level (vr))
-           bloom_discovered = left_dfs (G, e->v1, vl, vr, DCV, barrier);
+           bloom_discovered = left_dfs (G, e->v1, vl, vr, DCV, 
+                                        barrier, bloom_vertices);
        else
-           bloom_discovered = right_dfs (G, vl, vr, DCV, barrier);
+           bloom_discovered = right_dfs (G, vl, vr, DCV, 
+                                         barrier, bloom_vertices);
 
        if (bloom_discovered)
-           bloom_create ();
+           bloom_create (G, e, phase,
+                         candidates, bridges,
+                         bloom_vertices, DCV);
 
     }
 
@@ -400,7 +445,7 @@ search (Graph *G, List *candidates, List *bridges)
                                 u->count++;
                                 list_add (u->predecessors, (void *) v);
                                 list_add (v->successors, (void *) u);
-                                list_add ((List *) list_n_get (candidates, i + 1),
+                                list_add ((List *) list_n_get (candidates, i + 1)->data,
                                           (void *) u);
                             }
                             if (u->oddlevel < i)
@@ -453,7 +498,7 @@ search (Graph *G, List *candidates, List *bridges)
             e = (Edge *) el->data;
             if (e->v1->status != ERASED && e->v2->status != ERASED)
             {
-                bloss_aug(G, e);
+                bloss_aug(G, e, candidates, bridges, i);
             }
         }
         i++;

@@ -36,7 +36,7 @@ Edge* get_edge_by_vertices (Graph *G, Vertex* v1, Vertex* v2)
     Edge *e;
     for (i = 0; i < G->edge_n; i++)
     {
-        e = G->e[i];
+        e = &G->e[i];
         if ((e->v1 == v1 && e->v2 == v2) 
             || (e->v1 == v2 && e->v2 == v1))
         {
@@ -53,6 +53,7 @@ graph_create (size_t vertex_n, size_t edge_n)
     g.edge_n = edge_n;
     g.v = (Vertex*) malloc (vertex_n * sizeof (Vertex));
     g.e = (Edge*) malloc (edge_n * sizeof (Edge));
-
+    g.blooms = queue_create ();
     return g;
 }
+
