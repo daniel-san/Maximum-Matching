@@ -191,6 +191,7 @@ bloom_create (Graph *G, Edge* bridge, int phase,
     }
     
 }
+
 /**
  * Change the status of a list of vertices to ERASED
  */
@@ -224,13 +225,65 @@ base_p (Vertex *v, List* blooms)
     
 }
 
-void
-open ()
+/**
+ * Find an alternating path from x through Bloom(x) to base(Bloom(x))
+ */
+Queue *
+open (Graph *G, Vertex *x)
 {
+    Element *el;
+    Queue *path, *path_half1, *path_half2;
+    Vertex *b;
+    Bloom *B;
+
+    B = (Bloom *) queue_n_get (G->blooms, x->bloom)->data;
+    b = B->base;
+
+    if (vertex_level (x) % 2 == 0)//x is outer
+    {
+        path = findpath (G, x, b, B);
+        return path;
+    }
+    else//x is inner
+    {
+        if (x->side == LEFT)
+        {
+            path_half1 = findpath (G, B->left_peak, x, B);
+            path_half2 = findpath (G, B->right_peak, b, B);
+        }
+        else if (x->side == RIGHT)
+        {
+            path_half1 = findpath (G, B->right_peak, x, B);
+            path_half2 = findpath (G, B->left_peak, b, B);
+        }
+
+        path = queue_create();
+
+        //joining path and path_half1
+        el = queue_dequeue (path_half1);
+        while (el != NULL)
+        {
+            b = (Vertex *) el->data;
+            queue_enqueue (path, (void*) b);
+            el = queue_dequeue (path_half1);
+        }
+        //joining path and path_half2
+        el = queue_dequeue (path_half2);
+        while (el != NULL)
+        {
+            b = (Vertex *) el->data;
+            queue_enqueue (path, (void*) b);
+            el = queue_dequeue (path_half2);
+        }
+        
+        queue_destroy (path_half1);
+        queue_destroy (path_half2);
+        return path;
+    }
 
 }
 
-void
+Queue *
 findpath (Graph *G, Vertex *high, Vertex *low, Bloom *B)
 {
     int m;
@@ -240,11 +293,12 @@ findpath (Graph *G, Vertex *high, Vertex *low, Bloom *B)
     Bloom *b;
 
     Bool have_unvisited_edges = False;
-    Queue *path = queue_create ();
+    Queue *path = queue_create (), *temp;
+    
     if (high == low)
     {
         queue_enqueue (path, (void *) high);
-        return;
+        return path;
     }
 
     v = high;
@@ -272,7 +326,7 @@ findpath (Graph *G, Vertex *high, Vertex *low, Bloom *B)
         
         if (v->bloom == B->id || v->bloom == -1)
         {
-            
+            //choose an "unvisited" predecessor edge (u,v), and mark it as visited
         }
         else
         {
@@ -292,6 +346,7 @@ findpath (Graph *G, Vertex *high, Vertex *low, Bloom *B)
     } while (u != low);
     
     //creating the path from high to low, using parent pointers
+    queue_enqueue (path, (void*) high);
     z = high->parent;
     queue_enqueue (path, (void *) z);
     while (z != low)
@@ -302,19 +357,26 @@ findpath (Graph *G, Vertex *high, Vertex *low, Bloom *B)
     //adding low to the path
     queue_enqueue (path, (void *) z);
 
+    //u == xj and v = xj+1
     for (m = 0; m < path->queue_size; m++)
     {
         u = (Vertex *) queue_n_get (path, m)->data;
         if (u->bloom != -1 && u->bloom != B->id)
         {
             v = (Vertex *) queue_n_get (path, m + 1)->data;
-            //call open() and replace u and v with the returned values
+            temp = open (G, u);
+            u = (Vertex *) queue_dequeue (temp)->data;
+            v = (Vertex *) queue_dequeue (temp)->data;
+            queue_destroy (temp);
         }
 
     }
+
+    return path;
 }
 
-Bool left_dfs (Graph *G, Vertex *s, Vertex *vl, Vertex *vr,
+Bool
+left_dfs (Graph *G, Vertex *s, Vertex *vl, Vertex *vr,
                Vertex *DCV, Vertex *barrier, List *bloom_vertices)
 {
     Vertex *u;
@@ -356,8 +418,8 @@ Bool left_dfs (Graph *G, Vertex *s, Vertex *vl, Vertex *vr,
     return False;
 }
 
-//maybe a void return...?
-Bool right_dfs (Graph *G, Vertex *vl, Vertex *vr, 
+void 
+right_dfs (Graph *G, Vertex *vl, Vertex *vr, 
                 Vertex *DCV, Vertex *barrier, List *bloom_vertices)
 {
     Vertex *u;
@@ -386,7 +448,8 @@ Bool right_dfs (Graph *G, Vertex *vl, Vertex *vr,
             list_add (bloom_vertices, (void *) u);
             u->parent = vr; 
             vr = u;
-            return False;
+            //return False;
+            return;
         }
         else
         {
@@ -406,14 +469,17 @@ Bool right_dfs (Graph *G, Vertex *vl, Vertex *vr,
     else
         vr = vr->parent;
 
-    return False;
+    //return False;
 }
 
 void
-bloss_aug (Graph *G, Edge *e, List *candidates, List *bridges, int phase)
+bloss_aug (Graph *G, Edge *e, List *candidates, List *bridges, 
+           List *M, int phase)
 {
+    Bloom B; B.id = -1;
     Vertex *vl, *vr, *DCV, *barrier;
     Bool bloom_discovered = False;
+    Queue *path_half1, *path_half2;
     //used in case a bloom is discovered
     List *bloom_vertices = list_create ();
     //s = e->v1;
@@ -448,25 +514,31 @@ bloss_aug (Graph *G, Edge *e, List *candidates, List *bridges, int phase)
            bloom_discovered = left_dfs (G, e->v1, vl, vr, DCV, 
                                         barrier, bloom_vertices);
        else
-           bloom_discovered = right_dfs (G, vl, vr, DCV, 
-                                         barrier, bloom_vertices);
+           right_dfs (G, vl, vr, DCV, barrier, bloom_vertices);
 
        if (bloom_discovered)
+       {
            bloom_create (G, e, phase,
                          candidates, bridges,
                          bloom_vertices, DCV);
+           return;
+       }
 
     }
+    //find a path Pl from High=s to Low=vl with B=undefined
+    path_half1 = findpath (G, e->v1, vl, &B);
+    //find a path Pr from High=t to Low=vr with B=undefined
+    path_half2 = findpath (G, e->v2, vr, &B);
 
-    //findpath (); //find a path from High=s to Low=vl with B=undefined
-    //findpath (); //find a path from High=t to Low=vr with B=undefined
+    //increase the current matching M, reversing Pl through e ending with Pr
+    
 }
 
 /*
  * Subroutine SEARCH
  */
 Bool
-search (Graph *G, List *candidates, List *bridges)
+search (Graph *G, List *candidates, List *bridges, List* M)
 {
     //mostly temporary or loop variables
     int i = 0, j;
@@ -583,7 +655,7 @@ search (Graph *G, List *candidates, List *bridges)
             e = (Edge *) el->data;
             if (e->v1->status != ERASED && e->v2->status != ERASED)
             {
-                bloss_aug(G, e, candidates, bridges, i);
+                bloss_aug(G, e, candidates, bridges, M, i);
             }
         }
         i++;
@@ -635,7 +707,7 @@ matching (Graph *G)
         {
             initialize_edge(&G->e[i]);
         }
-        has_augmenting_path = search(G, candidates, bridges);
+        has_augmenting_path = search(G, candidates, bridges, M);
     }
     return M;
 }
