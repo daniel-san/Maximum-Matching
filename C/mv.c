@@ -30,6 +30,11 @@ initialize_vertex (Vertex *v)
 
 }
 
+
+/**
+ * Returns the Level of v, such that:
+ * Level(v) = min{Oddlevel(v), Evenlevel(v)}
+ */
 int 
 vertex_level (Vertex *v)
 {
@@ -139,6 +144,10 @@ initial_matching (Graph *G)
     return M;
 }
 
+/**
+ * Creates a bloom. It's called by bloss-aug in case
+ * the leftdfs or rightdfs discover a bloom.
+ */
 void
 bloom_create (Graph *G, Edge* bridge, int phase,
               List *candidates, List *bridges,
@@ -176,6 +185,7 @@ bloom_create (Graph *G, Edge* bridge, int phase,
                 //mark the edge (y,z) used and add it to bridges(j)
                 y_z = get_edge_by_vertices (G, y, z);
                 list_add ((List *) list_n_get (bridges, j)->data, (void *) y_z);
+                y_z->used = USED;
             }
         }
     }
@@ -221,17 +231,87 @@ open ()
 }
 
 void
-findpath (Vertex *high, Vertex *low, Bloom B)
+findpath (Graph *G, Vertex *high, Vertex *low, Bloom *B)
 {
-    Vertex *v;
-    List *path = list_create ();
+    int m;
+    Vertex *v, *u, *z;
+    Edge *v_z;
+    Element *el;
+    Bloom *b;
+
+    Bool have_unvisited_edges = False;
+    Queue *path = queue_create ();
     if (high == low)
     {
-        list_add (path, (void *) high);
+        queue_enqueue (path, (void *) high);
         return;
     }
 
     v = high;
+    do
+    {
+        //verify this loop...
+        while (!have_unvisited_edges)
+        {
+            for (el = v->predecessors->head; el != NULL; el = el->next)
+            {
+                z = (Vertex *) el->data;
+                v_z = get_edge_by_vertices (G, v, z);
+                if (v_z->visited == VISITED)
+                    continue;
+                else
+                {
+                    have_unvisited_edges = True;
+                    break;
+                }
+            }
+
+            if (!have_unvisited_edges)
+                v = v->parent;
+        }
+        
+        if (v->bloom == B->id || v->bloom == -1)
+        {
+            
+        }
+        else
+        {
+            b = (Bloom *) queue_n_get (G->blooms, v->bloom)->data;
+            u = b->base;
+        }
+
+        if (u->visited == UNVISITED && u->status == UNERASED
+                && vertex_level (u) > vertex_level (low)
+                && u->side == high->side)
+        {
+            u->visited = VISITED;
+            u->parent = v;
+            v = u;
+        }
+
+    } while (u != low);
+    
+    //creating the path from high to low, using parent pointers
+    z = high->parent;
+    queue_enqueue (path, (void *) z);
+    while (z != low)
+    {
+        z = z->parent;
+        queue_enqueue (path, (void *) z);
+    }
+    //adding low to the path
+    queue_enqueue (path, (void *) z);
+
+    for (m = 0; m < path->queue_size; m++)
+    {
+        u = (Vertex *) queue_n_get (path, m)->data;
+        if (u->bloom != -1 && u->bloom != B->id)
+        {
+            v = (Vertex *) queue_n_get (path, m + 1)->data;
+            //call open() and replace u and v with the returned values
+        }
+
+    }
 }
 
 Bool left_dfs (Graph *G, Vertex *s, Vertex *vl, Vertex *vr,
@@ -513,6 +593,9 @@ search (Graph *G, List *candidates, List *bridges)
     return False;
 }
 
+/**
+ * Main matching routine
+ */
 List * 
 matching (Graph *G)
 {

@@ -29,7 +29,8 @@ edge_create (Vertex *v1, Vertex *v2)
 }
 
 //TODO: Treat the case of not having an edge between v1 and v2
-Edge* get_edge_by_vertices (Graph *G, Vertex* v1, Vertex* v2)
+Edge *
+get_edge_by_vertices (Graph *G, Vertex* v1, Vertex* v2)
 {
     //search the list of edges for the edge made from these 2 vertices
     int i;
@@ -44,6 +45,19 @@ Edge* get_edge_by_vertices (Graph *G, Vertex* v1, Vertex* v2)
         }
     }
 }
+
+/*List *
+get_edges_by_vertex (Graph *G, Vertex *v)
+{
+    int i;
+    Edge *e;
+    List *edges = list_create ();
+    for (i = 0; i < G->edge_n; i++)
+    {
+        e = &
+    }
+    
+}*/
 
 Graph
 graph_create (size_t vertex_n, size_t edge_n)
