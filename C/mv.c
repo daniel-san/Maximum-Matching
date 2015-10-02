@@ -218,11 +218,16 @@ erase (List *Y)
 
 //computes the base*() of a bloom
 Vertex *
-base_p (Vertex *v, List* blooms)
+base_p (Vertex *v, Queue* blooms)
 {
-    Vertex *top;
+    Vertex *top, *base;
     Bloom *b;
-    
+    if (v->bloom == -1)
+        return v;
+    b = (Bloom *) queue_n_get(blooms, v->bloom)->data;
+    base = b->base;
+
+    return base_p (base, blooms);
 }
 
 /**
@@ -397,6 +402,7 @@ left_dfs (Graph *G, Vertex *s, Vertex *vl, Vertex *vr,
         if (u->bloom != -1)
         {
             //u = base*(u->bloom)
+            u = base_p (u, G->blooms);
         }
 
         if (u->side != LEFT && u->side != RIGHT)
@@ -440,6 +446,7 @@ right_dfs (Graph *G, Vertex *vl, Vertex *vr,
         if (u->bloom != -1)
         {
             //u = base*(u->bloom)
+            u = base_p (u, G->blooms);
         }
 
         if (u->side != LEFT && u->side != RIGHT)
@@ -492,6 +499,7 @@ bloss_aug (Graph *G, Edge *e, List *candidates, List *bridges,
     if ((e->v1->bloom != -1))
     {
         //vl = base*(s->bloom)
+        vl = base_p (e->v1, G->blooms);
     }
     else
         vl = e->v1;
@@ -499,6 +507,7 @@ bloss_aug (Graph *G, Edge *e, List *candidates, List *bridges,
     if ((e->v2->bloom != -1))
     {
         //vr = base*(t->bloom)
+        vr = base_p (e->v2, G->blooms);
     }
     else
         vr = e->v2;
