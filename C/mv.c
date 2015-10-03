@@ -7,6 +7,16 @@
 #include <time.h>
 #include "mv_graph.h"
 
+void
+destroy_list_of_lists (List *l)
+{
+    Element *el;
+    for (el = l->head; el != NULL; el = el->next)
+    {
+        list_destroy ((List *) el->data);
+    }
+}
+
 /*
  * Set some vertex attributes to default values 
  */
@@ -53,6 +63,19 @@ initialize_edge (Edge *e)
     e->visited = UNVISITED;
 }
 
+/**
+ * Reverse the status of an edge from Matched to Unmatched.
+ * This function is used to increase the matching along a 
+ * augmenting path.
+ */
+void
+reverse_edge (Edge *e)
+{
+    if (e->matched == MATCHED)
+        e->matched = UNMATCHED;
+    else
+        e->matched = MATCHED;
+}
 /*
  * Returns a list containing the free edges of 
  * a graph G
@@ -206,6 +229,7 @@ erase (List *Y)
         y->status = ERASED;
         for (el_1 = y->successors->head; el_1 != NULL; el_1 = el_1->next)
         {
+            z = (Vertex *) el_1->data;
             if (z->status == UNERASED)
             {
                 z->count--;
@@ -220,7 +244,7 @@ erase (List *Y)
 Vertex *
 base_p (Vertex *v, Queue* blooms)
 {
-    Vertex *top, *base;
+    Vertex *base;
     Bloom *b;
     if (v->bloom == -1)
         return v;
@@ -293,11 +317,14 @@ findpath (Graph *G, Vertex *high, Vertex *low, Bloom *B)
 {
     int m;
     Vertex *v, *u, *z;
-    Edge *v_z;
+    Edge *v_z, *u_v;
     Element *el;
     Bloom *b;
 
     Bool have_unvisited_edges = False;
+    //path contains the vertices that form a path.
+    //The edges themselves need to be fetched from the graph 
+    //using these vertices
     Queue *path = queue_create (), *temp;
     
     if (high == low)
@@ -332,6 +359,16 @@ findpath (Graph *G, Vertex *high, Vertex *low, Bloom *B)
         if (v->bloom == B->id || v->bloom == -1)
         {
             //choose an "unvisited" predecessor edge (u,v), and mark it as visited
+            for (el = v->predecessors->head; el != NULL; el = el->next)
+            {
+                u = (Vertex *) el->data;
+                u_v = get_edge_by_vertices (G, u, v);
+                if (u_v->visited == UNVISITED)
+                {
+                    u_v->visited = VISITED;
+                    break;
+                }
+            }
         }
         else
         {
@@ -460,7 +497,7 @@ right_dfs (Graph *G, Vertex *vl, Vertex *vr,
         }
         else
         {
-            if (u = vl)
+            if (u == vl)
                 DCV = u;
         }
     }
@@ -683,30 +720,31 @@ matching (Graph *G)
     //Loop variables
     int i;
     Bool has_augmenting_path = True;
-    Vertex *v;
     List *M = initial_matching (G);
     
-    //List of lists
+    //Bridges and Candidates are Lists of lists. Which means that 
+    //each element in both lists stores a pointer to another list
     List *candidates;
     List *bridges;
 
     while(has_augmenting_path)
     {
+        //in case the lists are not empty, destroy them
         if (!list_is_empty (candidates))
-            list_destroy (candidates);
+            destroy_list_of_lists (candidates);
 
         if (!list_is_empty (bridges))
-            list_destroy (bridges);
+            destroy_list_of_lists (bridges);
 
         candidates = list_create ();
         bridges = list_create ();
             
 
-        //setting the evenlevel and oddlevel of all vertices to infinity(-1)
         for (i = 0; i < G->vertex_n; i++)
         {
+            //initializing vertex with default values
             initialize_vertex (&G->v[i]);
-
+            //recreating the group of lists
             list_add (candidates, (void *) list_create ());
             list_add (bridges, (void *) list_create ());
         }

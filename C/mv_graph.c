@@ -44,6 +44,8 @@ get_edge_by_vertices (Graph *G, Vertex* v1, Vertex* v2)
             return e;
         }
     }
+    e = NULL;
+    return e;
 }
 
 /*List *
