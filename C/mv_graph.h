@@ -4,6 +4,7 @@
 typedef enum {
     MATCHED, UNMATCHED,
     VISITED, UNVISITED,
+    CHECKED, UNCHECKED,
     ERASED, UNERASED,
     USED, UNUSED,
     LEFT, RIGHT
@@ -43,6 +44,8 @@ typedef struct edge{
     //for DFS in FINDPATH
     Label visited;
     Label matched;
+    //used when increasing the match to avoid adding edges twice
+    Label checked;
     Vertex* v1;
     Vertex* v2;
     double weight;

@@ -127,6 +127,12 @@ queue_n_get (Queue *q, int n)
     return el;
 }
 
+Bool
+queue_is_empty (Queue *q)
+{
+    return (q->first == NULL && q->last == NULL);
+}
+
 void
 queue_destroy (Queue *q)
 {

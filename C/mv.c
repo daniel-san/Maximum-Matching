@@ -76,6 +76,7 @@ reverse_edge (Edge *e)
     else
         e->matched = MATCHED;
 }
+
 /*
  * Returns a list containing the free edges of 
  * a graph G
@@ -521,7 +522,9 @@ bloss_aug (Graph *G, Edge *e, List *candidates, List *bridges,
            List *M, int phase)
 {
     Bloom B; B.id = -1;
-    Vertex *vl, *vr, *DCV, *barrier;
+    Element *el;
+    Edge *temp;
+    Vertex *vl, *vr, *DCV, *barrier, *v1, *v2;
     Bool bloom_discovered = False;
     Queue *path_half1, *path_half2;
     //used in case a bloom is discovered
@@ -577,7 +580,39 @@ bloss_aug (Graph *G, Edge *e, List *candidates, List *bridges,
     path_half2 = findpath (G, e->v2, vr, &B);
 
     //increase the current matching M, reversing Pl through e ending with Pr
-    
+    //joining paths into one single queue
+    while (!queue_is_empty (path_half2))
+    {
+        queue_enqueue (path_half1, queue_dequeue (path_half2)->data);
+    }
+
+    //freeing memory
+    queue_destroy (path_half2);
+
+    for (el = path_half1->first; el->next != NULL; el = el->next)
+    {
+        v1 = (Vertex *) el->data;
+        v2 = (Vertex *) el->next->data;
+        temp = get_edge_by_vertices (G, v1, v2);
+        if (temp->checked == UNCHECKED)
+        {
+            reverse_edge (temp);
+            if (temp->matched == MATCHED)
+                list_add (M, (void *) temp);
+        }
+    }
+
+    //run through M and delete edges that are unmatched, so M contain
+    //only edges that have been reversed and are matched
+    el = M->head;
+    while (el != NULL)
+    {
+        temp = (Edge *) el->data;
+        if (temp->matched == UNMATCHED)
+            list_delete (M, temp);
+        el = el->next;
+    }
+
 }
 
 /*
