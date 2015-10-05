@@ -668,7 +668,6 @@ bloss_aug (Graph *G, Edge *e, List *candidates, List *bridges,
             bloom_create (G, e, phase,
                             candidates, bridges,
                             bloom_vertices, DCV);
-            list_destroy (bloom_vertices);
             return False;
         }
 
