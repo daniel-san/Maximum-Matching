@@ -1,3 +1,7 @@
+/**
+ * Defines the graph structures and some functions used in Micali-Vazirani
+ * maximum matching algorithm.
+ */
 #include "adt.h"
 #define INFINITY -1
 
@@ -60,38 +64,8 @@ typedef struct graph{
     Queue *blooms;
 } Graph;
 
-typedef struct bloom{
-    int id;
-    Vertex* base, *left_peak, *right_peak;
-    List *vertices;
-} Bloom;
-
 //Graph adt functions
 Vertex vertex_create (int id);
 Edge edge_create (Vertex *v1, Vertex *v2);
 Edge* get_edge_by_vertices (Graph *G, Vertex* v1, Vertex* v2);
 Graph graph_create (size_t vertex_n, size_t edge_n);
-
-
-//Matching functions
-void initialize_vertex (Vertex *v);
-int vertex_level (Vertex *v);
-void initialize_edge (Edge *e);
-List * get_free_edges (Graph *G);
-List * get_exposed_vertices (Graph *G);
-List * initial_matching (Graph *G);
-void bloom_create (Graph *G, Edge *bridge, int phase,
-                   List *candidates, List *bridges,
-                   List *bloom_vertices, Vertex *DCV);
-void erase (List *Y);
-Vertex * base_p (Vertex *v, Queue *blooms);
-Queue * open (Graph *g, Vertex *x);
-Queue * findpath (Graph *G, Vertex *high, Vertex *low, Bloom *B);
-Bool left_dfs (Graph *G, Vertex *s, Vertex *vl, Vertex *vr, 
-                Vertex *DCV, Vertex *barrier, List *bloom_vertices);
-void right_dfs (Graph *G, Vertex *vl, Vertex *vr, 
-                Vertex *DCV, Vertex *barrier, List *bloom_vertices);
-void bloss_aug (Graph *G, Edge *e, List *candidates, List *bridges, 
-                List *M, int phase);
-Bool search (Graph *G, List *candidates, List *bridges, List *M);
-List * matching (Graph *G);

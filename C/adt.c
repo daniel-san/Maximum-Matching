@@ -1,3 +1,6 @@
+/**
+ * Implementation of the adt functions used through the library
+ */
 #include <stdlib.h>
 #include <stdio.h>
 #include "adt.h"

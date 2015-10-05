@@ -5,8 +5,14 @@
  */
 #include <stdlib.h>
 #include <time.h>
-#include "mv_graph.h"
+#include "mv.h"
 
+/**
+ * Destroy a list, such that each element in the list stores 
+ * a pointer to another list.
+ *
+ * @param[in] l The list of lists to be destroyed
+ */
 void
 destroy_list_of_lists (List *l)
 {
@@ -17,8 +23,10 @@ destroy_list_of_lists (List *l)
     }
 }
 
-/*
- * Set some vertex attributes to default values 
+/**
+ * Set some vertex attributes to default values.
+ *
+ * @param[in] v The vertex to be initialized
  */
 void
 initialize_vertex (Vertex *v)
@@ -43,7 +51,10 @@ initialize_vertex (Vertex *v)
 
 /**
  * Returns the Level of v, such that:
- * Level(v) = min{Oddlevel(v), Evenlevel(v)}
+ * Level(v) = min{Oddlevel(v), Evenlevel(v)}.
+ *
+ * @param[in] v The vertex which we want to get the level of
+ * @param[out] The Level of the input vertex
  */
 int 
 vertex_level (Vertex *v)
@@ -55,6 +66,8 @@ vertex_level (Vertex *v)
 
 /*
  * Set some edge attributes to default values
+ *
+ * @param[in] e The edge to be initialized
  */
 void
 initialize_edge (Edge *e)
@@ -67,6 +80,8 @@ initialize_edge (Edge *e)
  * Reverse the status of an edge from Matched to Unmatched.
  * This function is used to increase the matching along a 
  * augmenting path.
+ *
+ * @param[in] e The edge to be reversed
  */
 void
 reverse_edge (Edge *e)
@@ -78,8 +93,10 @@ reverse_edge (Edge *e)
 }
 
 /*
- * Returns a list containing the free edges of 
- * a graph G
+ * Returns a list containing the free edges of a graph G.
+ *
+ * @param[in] G The graph used to find the free edges
+ * @param[out] A list containing the edges that are free
  */
 List * 
 get_free_edges (Graph *G)
@@ -98,8 +115,10 @@ get_free_edges (Graph *G)
 }
 
 /*
- * Returns a list containing the exposed vertices of 
- * a graph G.
+ * Returns a list containing the exposed vertices of a graph G.
+ * 
+ * @param[in] G The graph used to find the exposed vertices
+ * @param[out] A list containing the vertices that are exposed
  */
 List * 
 get_exposed_vertices (Graph *G)
@@ -119,7 +138,10 @@ get_exposed_vertices (Graph *G)
 
 
 /*
- * Function to used to setup a initial matching from the given graph
+ * Function to used to setup a initial matching from the given graph.
+ *
+ * @param[in] G The graph to get the initial matching
+ * @param[out] A list containing the initial set of matched edges
  */
 List *
 initial_matching (Graph *G)
@@ -170,7 +192,17 @@ initial_matching (Graph *G)
 
 /**
  * Creates a bloom. It's called by bloss-aug in case
- * the leftdfs or rightdfs discover a bloom.
+ * the leftdfs discover a bloom.
+ *
+ * @param[in] G The graph whose matching is being augmented
+ * @param[in] bridge The edge used to start the double DFS process
+ * @param[in] phase The number of the current execution phase
+ * @param[in] candidates The list of candidates
+ * @param[in] bridges The list of bridges
+ * @param[in] bloom_vertices A list that contain vertices that were marked 'left'
+ *                           or 'right' during the DFS and are used to create 
+ *                           a new bloom.
+ * @param[in] DCV The Deepes Common Vertex found during the DFS process
  */
 void
 bloom_create (Graph *G, Edge* bridge, int phase,
@@ -213,11 +245,12 @@ bloom_create (Graph *G, Edge* bridge, int phase,
             }
         }
     }
-    
 }
 
 /**
- * Change the status of a list of vertices to ERASED
+ * Change the status of a list of vertices to ERASED.
+ *
+ * @param[in] Y A list of vertices to be marked as ERASED
  */
 void
 erase (List *Y)
@@ -241,7 +274,13 @@ erase (List *Y)
     }
 }
 
-//computes the base*() of a bloom
+/**
+ * Computes the base* of a vertex.
+ *
+ * @param[in] v The vertex which the base* have to be found
+ * @param[in] blooms A queue containing the blooms created up to this point
+ * @param[out] The vertex that is the base* of v
+ */
 Vertex *
 base_p (Vertex *v, Queue* blooms)
 {
@@ -257,6 +296,11 @@ base_p (Vertex *v, Queue* blooms)
 
 /**
  * Find an alternating path from x through Bloom(x) to base(Bloom(x))
+ * 
+ * @param[in] G The graph whose matching is being augmented
+ * @param[in] x A vertex used to find an alternating path from it to 
+ *              the base of the bloom it belongs
+ * @param[out] A queue that contains the vertices forming the path found
  */
 Queue *
 open (Graph *G, Vertex *x)
@@ -269,12 +313,14 @@ open (Graph *G, Vertex *x)
     B = (Bloom *) queue_n_get (G->blooms, x->bloom)->data;
     b = B->base;
 
-    if (vertex_level (x) % 2 == 0)//x is outer
+    //x is outer
+    if (vertex_level (x) % 2 == 0)
     {
         path = findpath (G, x, b, B);
         return path;
     }
-    else//x is inner
+    //x is inner
+    else
     {
         if (x->side == LEFT)
         {
@@ -297,6 +343,7 @@ open (Graph *G, Vertex *x)
             queue_enqueue (path, (void*) b);
             el = queue_dequeue (path_half1);
         }
+
         //joining path and path_half2
         el = queue_dequeue (path_half2);
         while (el != NULL)
@@ -313,6 +360,16 @@ open (Graph *G, Vertex *x)
 
 }
 
+/**
+ * Finds augmenting paths, and use these paths to augment the current 
+ * matching.
+ *
+ * @param[in] G The graph whose matching is being augmented
+ * @param[in] high A vertex such that Level(high) > Level(low)
+ * @param[in] low A vertex such that Level(low) < Level(high)
+ * @param[in] B A bloom, used by open to find paths through blooms
+ *              other than B
+ */
 Queue *
 findpath (Graph *G, Vertex *high, Vertex *low, Bloom *B)
 {
@@ -418,6 +475,22 @@ findpath (Graph *G, Vertex *high, Vertex *low, Bloom *B)
     return path;
 }
 
+/**
+ * Executes one step of the left DFS search process. It advances vl to a 
+ * predecessor or backtracks or signals the discovery of a bloom.
+ *
+ * @param[in] G The graph whose matching is being augmented
+ * @param[in] s The left vertex of the bridge (s,t)
+ * @param[in] vl A vertex with a 'left' mark
+ * @param[in] vr A vertex with a 'right' mark
+ * @param[in] DCV The Deepest Common Vertex found during the dfs
+ * @param[in] barrier The vertex used to stop the backtracking from going
+ *                    further than barrier.
+ * @param[in] bloom_vertices A list that contain vertices that were marked 'left'
+ *                           or 'right' during the DFS and are used to create 
+ *                           a new bloom.
+ * @param[out] A boolean value signing that a new bloom was created
+ */
 Bool
 left_dfs (Graph *G, Vertex *s, Vertex *vl, Vertex *vr,
                Vertex *DCV, Vertex *barrier, List *bloom_vertices)
@@ -462,6 +535,20 @@ left_dfs (Graph *G, Vertex *s, Vertex *vl, Vertex *vr,
     return False;
 }
 
+/**
+ * One step of right DFS search process. Advances vr to a predecessor
+ * or backtracks.
+ *
+ * @param[in] G The graph whose matching is being augmented
+ * @param[in] vl A vertex with a 'left' mark
+ * @param[in] vr A vertex with a 'right' mark
+ * @param[in] DCV The Deepest Common Vertex found during the dfs
+ * @param[in] barrier The vertex used to stop the backtracking from going
+ *                    further than barrier.
+ * @param[in] bloom_vertices A list that contain vertices that were marked 'left'
+ *                           or 'right' during the dfs and are used to create 
+ *                           a new bloom.
+ */
 void 
 right_dfs (Graph *G, Vertex *vl, Vertex *vr, 
                 Vertex *DCV, Vertex *barrier, List *bloom_vertices)
@@ -517,10 +604,21 @@ right_dfs (Graph *G, Vertex *vl, Vertex *vr,
     //return False;
 }
 
-void
+/**
+ * Either discovers a bloom or augments the initial matching.
+ *
+ * @param[in] G The graph whose matching is being augmented
+ * @param[in] e The bridge (s, t) discovered at the current level of execution
+ * @param[in] candidates The list of candidates
+ * @param[in] bridges The list of bridges
+ * @param[in] M The initial matching of the graph
+ * @param[out] A boolean value signing if the current matching was augmented
+ */
+Bool
 bloss_aug (Graph *G, Edge *e, List *candidates, List *bridges, 
            List *M, int phase)
 {
+    //B is used when the bloom passed to left or right_dfs is undefined
     Bloom B; B.id = -1;
     Element *el;
     Edge *temp;
@@ -559,19 +657,20 @@ bloss_aug (Graph *G, Edge *e, List *candidates, List *bridges,
 
     while (vl->matched == UNMATCHED && vr->matched == UNMATCHED)
     {
-       if (vertex_level (vl) >= vertex_level (vr))
+        if (vertex_level (vl) >= vertex_level (vr))
            bloom_discovered = left_dfs (G, e->v1, vl, vr, DCV, 
                                         barrier, bloom_vertices);
-       else
+        else
            right_dfs (G, vl, vr, DCV, barrier, bloom_vertices);
 
-       if (bloom_discovered)
-       {
-           bloom_create (G, e, phase,
-                         candidates, bridges,
-                         bloom_vertices, DCV);
-           return;
-       }
+        if (bloom_discovered)
+        {
+            bloom_create (G, e, phase,
+                            candidates, bridges,
+                            bloom_vertices, DCV);
+            list_destroy (bloom_vertices);
+            return False;
+        }
 
     }
     //find a path Pl from High=s to Low=vl with B=undefined
@@ -602,6 +701,8 @@ bloss_aug (Graph *G, Edge *e, List *candidates, List *bridges,
         }
     }
 
+    queue_destroy (path_half1);
+
     //run through M and delete edges that are unmatched, so M contain
     //only edges that have been reversed and are matched
     el = M->head;
@@ -613,10 +714,17 @@ bloss_aug (Graph *G, Edge *e, List *candidates, List *bridges,
         el = el->next;
     }
 
+    return True;
 }
 
 /*
- * Subroutine SEARCH
+ * Finds all augmenting paths of minimal length and uses these paths 
+ * to augment the current matching.
+ *
+ * @param[in] G The graph whose the matching is being augmented
+ * @param[in] candidates The list of candidates
+ * @param[in] bridges The list of bridges
+ * @param[in] M The initial matching of the graph
  */
 Bool
 search (Graph *G, List *candidates, List *bridges, List* M)
@@ -629,7 +737,7 @@ search (Graph *G, List *candidates, List *bridges, List* M)
     List *temp_list;
     
     //probably will become an external value
-    Bool last_phase_has_augmenting_path = False;
+    Bool augmentation_occurred = False;
     
     //used to access one of the lists inside bridges or candidates list
     List *bridges_el;
@@ -647,8 +755,9 @@ search (Graph *G, List *candidates, List *bridges, List* M)
     candidates_el = (List *) list_n_get(candidates, i)->data;
 
     while (!list_is_empty (candidates_el) 
-           && !last_phase_has_augmenting_path)
+           && !augmentation_occurred)
     {
+        //if i is even
         if (i % 2 == 0)
         {
             for (el = candidates_el->head; el != NULL; el = el->next)
@@ -656,14 +765,14 @@ search (Graph *G, List *candidates, List *bridges, List* M)
                 v = (Vertex *) el->data;
 
                 //access unerased neighbors of v, and verify free edges between them
-                temp_list = v->neighbors;
-                for (el_1 = temp_list->head; el_1 != NULL; el_1 = el_1->next)
+                for (el_1 = v->neighbors->head; el_1 != NULL; el_1 = el_1->next)
                 {
                     u = (Vertex*) el_1->data;
+                    //if u is erased, verify the next neighbor
                     if (u->status == ERASED)
                         continue;
 
-                    e = get_edge_by_vertices(G, v, u);
+                    e = get_edge_by_vertices(G, u, v);
                     if (e->matched == UNMATCHED)
                     {
                         if (u->evenlevel != INFINITY)
@@ -691,9 +800,9 @@ search (Graph *G, List *candidates, List *bridges, List* M)
                         }
                     }
                 }
-
             }
         }
+        //i is odd
         else
         {
             for (el = candidates_el->head; el != NULL; el = el->next)
@@ -736,25 +845,29 @@ search (Graph *G, List *candidates, List *bridges, List* M)
             e = (Edge *) el->data;
             if (e->v1->status != ERASED && e->v2->status != ERASED)
             {
-                bloss_aug(G, e, candidates, bridges, M, i);
+                augmentation_occurred = bloss_aug(G, e, candidates, bridges, M, i);
             }
         }
         i++;
     }
     
-
-    return False;
+    return augmentation_occurred;
 }
 
 /**
- * Main matching routine
+ * Main matching routine.
+ *
+ * @param[in] G The graph to find the maximum matching
+ * @param[out] M The matching of the graph
  */
 List * 
 matching (Graph *G)
 {
     //Loop variables
     int i;
-    Bool has_augmenting_path = True;
+    Bool augmentation_occurred = False;
+
+    //setup a initial matching on the graph
     List *M = initial_matching (G);
     
     //Bridges and Candidates are Lists of lists. Which means that 
@@ -762,7 +875,7 @@ matching (Graph *G)
     List *candidates;
     List *bridges;
 
-    while(has_augmenting_path)
+    do
     {
         //in case the lists are not empty, destroy them
         if (!list_is_empty (candidates))
@@ -772,13 +885,13 @@ matching (Graph *G)
             destroy_list_of_lists (bridges);
 
         candidates = list_create ();
-        bridges = list_create ();
-            
+        bridges = list_create ();   
 
         for (i = 0; i < G->vertex_n; i++)
         {
             //initializing vertex with default values
             initialize_vertex (&G->v[i]);
+
             //recreating the group of lists
             list_add (candidates, (void *) list_create ());
             list_add (bridges, (void *) list_create ());
@@ -789,7 +902,9 @@ matching (Graph *G)
         {
             initialize_edge(&G->e[i]);
         }
-        has_augmenting_path = search(G, candidates, bridges, M);
-    }
+        augmentation_occurred = search(G, candidates, bridges, M);
+
+    } while (!augmentation_occurred);
+
     return M;
 }

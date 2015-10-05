@@ -1,6 +1,6 @@
-//Code for abstract data type structs used through the library
-
-//Rough implementation draft -- Expect improvements/changes in code and file structure
+/**
+ * Code for abstract data type structs used through the library
+ */
 
 typedef enum{
     False, True
