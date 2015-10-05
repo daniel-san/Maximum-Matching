@@ -632,7 +632,7 @@ bloss_aug (Graph *G, Edge *e, List *candidates, List *bridges,
 
     if ((e->v1->bloom != -1) && (e->v2->bloom != -1) 
         && (e->v1->bloom == e->v2->bloom))
-        return;
+        return False;
 
     if ((e->v1->bloom != -1))
     {
@@ -709,7 +709,7 @@ bloss_aug (Graph *G, Edge *e, List *candidates, List *bridges,
     {
         temp = (Edge *) el->data;
         if (temp->matched == UNMATCHED)
-            list_delete (M, temp);
+            list_delete (M, el);
         el = el->next;
     }
 
