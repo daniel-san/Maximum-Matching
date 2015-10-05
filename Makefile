@@ -23,4 +23,4 @@ all:
 				../mv.o
 clean:
 	cd C; rm -rf *.o
-	cd C/test; rm -rf graph graph_generator search mv
+	cd C/test; rm -rf graph graph_generator search mv adt
