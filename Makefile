@@ -1,5 +1,6 @@
 CC = gcc
 CFLAGS = -Wall
+GDB = -ggdb
 
 default: all
 
@@ -17,7 +18,12 @@ all:
 				../graph.o \
 				../adt.o \
 				../graph_generator.o
-	cd C/test; ${CC} ${CF:AGS} mv.c -o mv \
+	cd C/test; ${CC} ${CFLAGS} mv.c -o mv \
+				../adt.o \
+				../mv_graph.o \
+				../mv.o
+debug:
+	cd C/test; ${CC} ${CFLAGS} ${GDB} mv.c -o mv \
 				../adt.o \
 				../mv_graph.o \
 				../mv.o
