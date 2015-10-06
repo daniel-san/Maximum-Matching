@@ -250,14 +250,14 @@ bloom_create (Graph *G, Edge* bridge, int phase,
 /**
  * Change the status of a list of vertices to ERASED.
  *
- * @param[in] Y A list of vertices to be marked as ERASED
+ * @param[in] Y A queue of vertices to be marked as ERASED
  */
 void
-erase (List *Y)
+erase (Queue *Y)
 {
     Vertex *y, *z;
     Element *el, *el_1;
-    for (el = Y->head; el != NULL; el = el->next)
+    for (el = Y->first; el != NULL; el = el->next)
     {
         y = (Vertex *) el->data;
         y->status = ERASED;
@@ -268,7 +268,7 @@ erase (List *Y)
             {
                 z->count--;
                 if (z->count == 0)
-                    list_add (Y, (void *) z);
+                    queue_enqueue (Y, (void *) z);
             }
         }
     }
@@ -339,8 +339,8 @@ open (Graph *G, Vertex *x)
         el = queue_dequeue (path_half1);
         while (el != NULL)
         {
-            b = (Vertex *) el->data;
-            queue_enqueue (path, (void*) b);
+            queue_enqueue (path, el->data);
+            free (el);
             el = queue_dequeue (path_half1);
         }
 
@@ -348,13 +348,14 @@ open (Graph *G, Vertex *x)
         el = queue_dequeue (path_half2);
         while (el != NULL)
         {
-            b = (Vertex *) el->data;
-            queue_enqueue (path, (void*) b);
+            queue_enqueue (path, el->data);
+            free (el);
             el = queue_dequeue (path_half2);
         }
         
-        queue_destroy (path_half1);
-        queue_destroy (path_half2);
+        free (path_half1);
+        free (path_half2);
+
         return path;
     }
 
@@ -434,9 +435,9 @@ findpath (Graph *G, Vertex *high, Vertex *low, Bloom *B)
             u = b->base;
         }
 
-        if (u->visited == UNVISITED && u->status == UNERASED
-                && vertex_level (u) > vertex_level (low)
-                && u->side == high->side)
+        if ((u->visited == UNVISITED) && (u->status == UNERASED)
+                && (vertex_level (u) > vertex_level (low))
+                && (u->side == high->side))
         {
             u->visited = VISITED;
             u->parent = v;
@@ -497,18 +498,20 @@ left_dfs (Graph *G, Vertex *s, Vertex *vl, Vertex *vr,
 {
     Vertex *u;
     Edge *e;
-    Element *predecessor_el = list_pop (vl->predecessors);
-    while (predecessor_el != NULL)
+    //Element *predecessor_el = list_pop (vl->predecessors);
+    Element *predecessor_el;
+    for (predecessor_el = vl->predecessors->head;
+            predecessor_el != NULL; predecessor_el = predecessor_el->next)
     {
         u = (Vertex *) predecessor_el->data;
         if (u->status == ERASED)
             continue;
 
         e = get_edge_by_vertices (G, vl, u);
-        if (e->used == UNUSED)
-        {
-            e->used = USED;
-        }
+        if (e->used == USED)
+            continue;
+
+        e->used = USED;
 
         if (u->bloom != -1)
         {
@@ -522,21 +525,19 @@ left_dfs (Graph *G, Vertex *s, Vertex *vl, Vertex *vr,
             list_add (bloom_vertices, (void *) u);
             u->parent = vl; 
             vl = u;
+            return False;
         }
-        predecessor_el = list_pop (vl->predecessors);
     }
 
     if (vl == s)
-    {
-        vl = vl->parent;
         return True;
-    }
 
+    vl = vl->parent;
     return False;
 }
 
 /**
- * One step of right DFS search process. Advances vr to a predecessor
+ * Executes one step of right DFS search process. Advances vr to a predecessor
  * or backtracks.
  *
  * @param[in] G The graph whose matching is being augmented
@@ -555,18 +556,21 @@ right_dfs (Graph *G, Vertex *vl, Vertex *vr,
 {
     Vertex *u;
     Edge *e;
-    Element *predecessor_el = list_pop (vr->predecessors);
-    while (predecessor_el != NULL)
+    //Element *predecessor_el = list_pop (vr->predecessors);
+
+    Element *predecessor_el;
+    for (predecessor_el = vl->predecessors->head;
+            predecessor_el != NULL; predecessor_el = predecessor_el->next)
     {
         u = (Vertex *) predecessor_el->data;
         if (u->status == ERASED)
             continue;
 
         e = get_edge_by_vertices (G, vr, u);
-        if (e->used == UNUSED)
-        {
-            e->used = USED;
-        }
+        if (e->used == USED)
+            continue;
+
+        e->used = USED;
 
         if (u->bloom != -1)
         {
@@ -580,7 +584,6 @@ right_dfs (Graph *G, Vertex *vl, Vertex *vr,
             list_add (bloom_vertices, (void *) u);
             u->parent = vr; 
             vr = u;
-            //return False;
             return;
         }
         else
@@ -600,8 +603,6 @@ right_dfs (Graph *G, Vertex *vl, Vertex *vr,
     }
     else
         vr = vr->parent;
-
-    //return False;
 }
 
 /**
@@ -650,12 +651,12 @@ bloss_aug (Graph *G, Edge *e, List *candidates, List *bridges,
     else
         vr = e->v2;
 
-    vr->side = LEFT;
+    vl->side = LEFT;
     vr->side = RIGHT;
 
     barrier = vr;
-
-    while (vl->matched == UNMATCHED && vr->matched == UNMATCHED)
+    //while both vl and vr are not exposed
+    while (!(vl->matched == UNMATCHED && vr->matched == UNMATCHED))
     {
         if (vertex_level (vl) >= vertex_level (vr))
            bloom_discovered = left_dfs (G, e->v1, vl, vr, DCV, 
@@ -672,12 +673,20 @@ bloss_aug (Graph *G, Edge *e, List *candidates, List *bridges,
         }
 
     }
+
+    //since a bloom hasn't been discovered during this call, destroy the list
+    list_destroy (bloom_vertices);
+
     //find a path Pl from High=s to Low=vl with B=undefined
     path_half1 = findpath (G, e->v1, vl, &B);
     //find a path Pr from High=t to Low=vr with B=undefined
     path_half2 = findpath (G, e->v2, vr, &B);
 
     //increase the current matching M, reversing Pl through e ending with Pr
+    //adding the vertices of (s,t) to the path
+    queue_enqueue (path_half1, (void *) e->v1);
+    queue_enqueue (path_half1, (void *) e->v2);
+
     //joining paths into one single queue
     while (!queue_is_empty (path_half2))
     {
@@ -687,6 +696,7 @@ bloss_aug (Graph *G, Edge *e, List *candidates, List *bridges,
     //freeing memory
     queue_destroy (path_half2);
 
+    //reversing edges in the path
     for (el = path_half1->first; el->next != NULL; el = el->next)
     {
         v1 = (Vertex *) el->data;
@@ -700,6 +710,10 @@ bloss_aug (Graph *G, Edge *e, List *candidates, List *bridges,
         }
     }
 
+    //marking all vertices of the path as erased
+    erase (path_half1);
+
+    //freeing memory
     queue_destroy (path_half1);
 
     //run through M and delete edges that are unmatched, so M contain
@@ -783,9 +797,8 @@ search (Graph *G, List *candidates, List *bridges, List* M)
                         else
                         {
                             if (u->oddlevel == INFINITY)
-                            {
                                 u->oddlevel = i + 1;
-                            }
+
                             if (u->oddlevel == i + 1)
                             {
                                 u->count++;

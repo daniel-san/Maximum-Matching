@@ -18,7 +18,7 @@ List * initial_matching (Graph *G);
 void bloom_create (Graph *G, Edge *bridge, int phase,
                    List *candidates, List *bridges,
                    List *bloom_vertices, Vertex *DCV);
-void erase (List *Y);
+void erase (Queue *Y);
 Vertex * base_p (Vertex *v, Queue *blooms);
 Queue * open (Graph *g, Vertex *x);
 Queue * findpath (Graph *G, Vertex *high, Vertex *low, Bloom *B);
