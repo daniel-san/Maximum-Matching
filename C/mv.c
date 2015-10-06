@@ -936,14 +936,14 @@ matching (Graph *G)
     Bool augmentation_occurred = False;
 
     //setup a initial matching on the graph
-    List *M = initial_matching (G);
+    //List *M = initial_matching (G);
 
-    //List *M = list_create ();
-    //for (i = 0; i < G->edge_n; i++)
-    //{
-    //    if (G->e[i].matched == MATCHED)
-    //        list_add (M, (void *) &G->e[i]);
-    //}
+    List *M = list_create ();
+    for (i = 0; i < G->edge_n; i++)
+    {
+        if (G->e[i].matched == MATCHED)
+            list_add (M, (void *) &G->e[i]);
+    }
     
     //Bridges and Candidates are Lists of lists. Which means that 
     //each element in both lists stores a pointer to another list

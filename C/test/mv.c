@@ -3,25 +3,16 @@
 #include "../mv.h"
 
 /*Test creating a graph with the following topology
-  x denote a matched edge. The matching is fixed as 
-  ways of testing.
-         0
-       /   \
-      1    2
-     / \  / \
-     3 4  5 6
-     | |  |
-     7 8  9
+  0 ---- 1 --x-- 2 ---- 3 --x-- 4 ---- 5
 */
 int
 main (int argc, char* argv[])
 {
-    int n = 10, i;
+    int n = 6, i;
     List *M;
     Edge *e_temp;
     Element *el;
 
-    //Will be a tree graph
     Graph G = graph_create (n, n - 1);
 
     //vertex insertion
@@ -32,14 +23,27 @@ main (int argc, char* argv[])
     
     //edge insertion
     G.e[0] = edge_create (&G.v[0], &G.v[1]); 
-    G.e[1] = edge_create (&G.v[0], &G.v[2]);
-    G.e[2] = edge_create (&G.v[2], &G.v[5]); 
-    G.e[3] = edge_create (&G.v[2], &G.v[6]);
-    G.e[4] = edge_create (&G.v[1], &G.v[3]);
-    G.e[5] = edge_create (&G.v[1], &G.v[4]);
-    G.e[6] = edge_create (&G.v[3], &G.v[7]);
-    G.e[7] = edge_create (&G.v[4], &G.v[8]); 
-    G.e[8] = edge_create (&G.v[5], &G.v[9]);
+    G.e[1] = edge_create (&G.v[1], &G.v[2]);
+    G.e[2] = edge_create (&G.v[2], &G.v[3]); 
+    G.e[3] = edge_create (&G.v[3], &G.v[4]);
+    G.e[4] = edge_create (&G.v[4], &G.v[5]);
+
+
+    //simple case
+    G.e[1].v1->matched = G.e[1].v2->matched = MATCHED;
+    G.e[1].matched = MATCHED;
+    G.e[1].v1->mate = G.e[1].v2;
+    G.e[1].v2->mate = G.e[1].v1;
+    G.e[1].v1->matched_edge = &G.e[1];
+    G.e[1].v2->matched_edge = &G.e[1];
+
+    G.e[3].v1->matched = G.e[3].v2->matched = MATCHED;
+    G.e[3].matched = MATCHED;
+    G.e[3].v1->mate = G.e[3].v2;
+    G.e[3].v2->mate = G.e[3].v1;
+    G.e[3].v1->matched_edge = &G.e[3];
+    G.e[3].v2->matched_edge = &G.e[3];
+
 
     //M = initial_matching (&G);
     M = matching(&G);
