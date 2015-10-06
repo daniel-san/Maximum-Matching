@@ -2,7 +2,17 @@
 #include <stdio.h>
 #include "../mv.h"
 
-
+/*Test creating a graph with the following topology
+  x denote a matched edge. The matching is fixed as 
+  ways of testing.
+         0
+       /   \
+      1    2
+     / \  / \
+     3 4  5 6
+     | |  |
+     7 8  9
+*/
 int
 main (int argc, char* argv[])
 {
@@ -21,14 +31,14 @@ main (int argc, char* argv[])
     }
     
     //edge insertion
-    G.e[0] = edge_create (&G.v[0], &G.v[1]);
+    G.e[0] = edge_create (&G.v[0], &G.v[1]); 
     G.e[1] = edge_create (&G.v[0], &G.v[2]);
-    G.e[2] = edge_create (&G.v[2], &G.v[5]);
+    G.e[2] = edge_create (&G.v[2], &G.v[5]); 
     G.e[3] = edge_create (&G.v[2], &G.v[6]);
     G.e[4] = edge_create (&G.v[1], &G.v[3]);
     G.e[5] = edge_create (&G.v[1], &G.v[4]);
     G.e[6] = edge_create (&G.v[3], &G.v[7]);
-    G.e[7] = edge_create (&G.v[4], &G.v[8]);
+    G.e[7] = edge_create (&G.v[4], &G.v[8]); 
     G.e[8] = edge_create (&G.v[5], &G.v[9]);
 
     //M = initial_matching (&G);

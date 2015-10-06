@@ -6,11 +6,17 @@
 #define INFINITY -1
 
 typedef enum {
+    // 0, 1
     MATCHED, UNMATCHED,
+    //2, 3
     VISITED, UNVISITED,
+    //4, 5
     CHECKED, UNCHECKED,
+    //6, 7
     ERASED, UNERASED,
+    //8, 9
     USED, UNUSED,
+    //10, 11
     LEFT, RIGHT
 } Label;
 

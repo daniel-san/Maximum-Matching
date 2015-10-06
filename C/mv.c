@@ -4,8 +4,47 @@
  * known algorithm for finding a maximum matching.
  */
 #include <stdlib.h>
+#include <stdio.h>
 #include <time.h>
 #include "mv.h"
+
+
+/**
+ * Print the data of a vertex. Used for debugging purposes.
+ */
+void
+PRINT_VERTEX (Vertex *v)
+{
+    printf ("\n\t==========================================================\n");
+    printf ("\tVERTEX:\n");
+    printf ("\tId %d\n",v->id);
+    printf ("\tMatched -- MATCHED = 0/UNMATCHED = 1: %d\n",v->matched);
+    printf ("\tVisited -- VISITED = 2/UNVISITED = 3: %d\n",v->visited);
+    //printf ("Mate id",);
+    printf ("\tStatus -- ERASED = 6/UNERASED = 7: %d\n",v->status);
+    printf ("\tSide -- LEFT = 10/RIGHT = 11: %d\n",v->side);
+    printf ("\tEvenlevel: %d\n",v->evenlevel);
+    printf ("\tOddlevel: %d\n",v->oddlevel);
+    printf ("\tBloom id: %d\n",v->bloom);
+    printf ("\tPredecessors List size: %d\n",v->predecessors->list_size);
+    printf ("\tSuccessors List size: %d\n",v->successors->list_size);
+    printf ("\tAnomalies List size: %d\n",v->anomalies->list_size);
+    printf ("\tNeighbors List size: %d\n",v->neighbors->list_size);
+    printf ("\t==========================================================\n\n");
+}
+
+void
+PRINT_EDGE (Edge *e)
+{
+    printf ("\n\t==========================================================\n");
+    printf ("\tEDGE:\n");
+    printf ("\tEdge %d --> %d\n", e->v1->id, e->v2->id);
+    printf ("\tUsed -- USED = 8/UNUSED = 9: %d\n",e->used);
+    printf ("\tVisited -- VISITED = 2/UNVISITED = 3: %d\n",e->visited);
+    printf ("\tMatched -- MATCHED = 0/UNMATCHED = 1: %d\n",e->matched);
+    printf ("\tChecked -- CHECKED = 4/UNCHECKED = 5: %d\n",e->checked);
+    printf ("\t==========================================================\n\n");
+}
 
 /**
  * Destroy a list, such that each element in the list stores 
@@ -17,6 +56,9 @@ void
 destroy_list_of_lists (List *l)
 {
     Element *el;
+    if (l == NULL)
+        return;
+
     for (el = l->head; el != NULL; el = el->next)
     {
         list_destroy ((List *) el->data);
@@ -742,6 +784,7 @@ bloss_aug (Graph *G, Edge *e, List *candidates, List *bridges,
 Bool
 search (Graph *G, List *candidates, List *bridges, List* M)
 {
+
     //mostly temporary or loop variables
     int i = 0, j;
     Element *el, *el_1; //el_1 is used for nested list iteration
@@ -755,8 +798,11 @@ search (Graph *G, List *candidates, List *bridges, List* M)
     //used to access one of the lists inside bridges or candidates list
     List *bridges_el;
     List *candidates_el = (List *) list_n_get(candidates, 0)->data;
+    
+    printf ("Size of Candidates: %d\n", candidates->list_size);
 
     List *exposed_vertices = get_exposed_vertices (G);
+
 
     for (el = exposed_vertices->head; el != NULL; el = el->next)
     {
@@ -765,11 +811,14 @@ search (Graph *G, List *candidates, List *bridges, List* M)
         list_add (candidates_el, (void *) v);
     }
 
+
     candidates_el = (List *) list_n_get(candidates, i)->data;
 
     while (!list_is_empty (candidates_el) 
            && !augmentation_occurred)
     {
+
+        printf ("Inside Search Main loop -- Beggining -- i = %d\n", i);
         //if i is even
         if (i % 2 == 0)
         {
@@ -777,15 +826,22 @@ search (Graph *G, List *candidates, List *bridges, List* M)
             {
                 v = (Vertex *) el->data;
 
+                printf ("Inside Search Main loop -- candidates loop\n");
                 //access unerased neighbors of v, and verify free edges between them
                 for (el_1 = v->neighbors->head; el_1 != NULL; el_1 = el_1->next)
                 {
                     u = (Vertex*) el_1->data;
+
+                    PRINT_VERTEX(u);
+
                     //if u is erased, verify the next neighbor
                     if (u->status == ERASED)
                         continue;
 
                     e = get_edge_by_vertices(G, u, v);
+
+                    PRINT_EDGE (e);
+
                     if (e->matched == UNMATCHED)
                     {
                         if (u->evenlevel != INFINITY)
@@ -881,20 +937,31 @@ matching (Graph *G)
 
     //setup a initial matching on the graph
     List *M = initial_matching (G);
+
+    //List *M = list_create ();
+    //for (i = 0; i < G->edge_n; i++)
+    //{
+    //    if (G->e[i].matched == MATCHED)
+    //        list_add (M, (void *) &G->e[i]);
+    //}
     
     //Bridges and Candidates are Lists of lists. Which means that 
     //each element in both lists stores a pointer to another list
-    List *candidates;
-    List *bridges;
+    List *candidates = NULL;
+    List *bridges = NULL;
 
     do
     {
         //in case the lists are not empty, destroy them
-        if (!list_is_empty (candidates))
-            destroy_list_of_lists (candidates);
+        if (candidates != NULL && bridges != NULL)
+        {
+            if (!list_is_empty (candidates))
+               destroy_list_of_lists (candidates);
 
-        if (!list_is_empty (bridges))
-            destroy_list_of_lists (bridges);
+
+            if (!list_is_empty (bridges))
+                destroy_list_of_lists (bridges);
+        }
 
         candidates = list_create ();
         bridges = list_create ();   
@@ -903,6 +970,7 @@ matching (Graph *G)
         {
             //initializing vertex with default values
             initialize_vertex (&G->v[i]);
+
 
             //recreating the group of lists
             list_add (candidates, (void *) list_create ());
