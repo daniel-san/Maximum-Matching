@@ -798,8 +798,6 @@ search (Graph *G, List *candidates, List *bridges, List* M)
     //used to access one of the lists inside bridges or candidates list
     List *bridges_el;
     List *candidates_el = (List *) list_n_get(candidates, 0)->data;
-    
-    printf ("Size of Candidates: %d\n", candidates->list_size);
 
     List *exposed_vertices = get_exposed_vertices (G);
 
@@ -811,14 +809,11 @@ search (Graph *G, List *candidates, List *bridges, List* M)
         list_add (candidates_el, (void *) v);
     }
 
+    list_destroy (exposed_vertices);
 
-    candidates_el = (List *) list_n_get(candidates, i)->data;
-
-    while (!list_is_empty (candidates_el) 
-           && !augmentation_occurred)
+    for (i = 0; i < G->vertex_n; i++)
     {
-
-        printf ("Inside Search Main loop -- Beggining -- i = %d\n", i);
+        candidates_el = (List *) list_n_get(candidates, i)->data;
         //if i is even
         if (i % 2 == 0)
         {
@@ -826,13 +821,12 @@ search (Graph *G, List *candidates, List *bridges, List* M)
             {
                 v = (Vertex *) el->data;
 
-                printf ("Inside Search Main loop -- candidates loop\n");
                 //access unerased neighbors of v, and verify free edges between them
                 for (el_1 = v->neighbors->head; el_1 != NULL; el_1 = el_1->next)
                 {
                     u = (Vertex*) el_1->data;
 
-                    PRINT_VERTEX(u);
+                    //PRINT_VERTEX(u);
 
                     //if u is erased, verify the next neighbor
                     if (u->status == ERASED)
@@ -840,13 +834,13 @@ search (Graph *G, List *candidates, List *bridges, List* M)
 
                     e = get_edge_by_vertices(G, u, v);
 
-                    PRINT_EDGE (e);
+                    //PRINT_EDGE (e);
 
                     if (e->matched == UNMATCHED)
                     {
                         if (u->evenlevel != INFINITY)
                         {
-                            j = (u->oddlevel + v->oddlevel)/2;
+                            j = (u->evenlevel + v->evenlevel)/2;
                             bridges_el = (List *) list_n_get (bridges, j)->data;
                             list_add (bridges_el, e);
                         }
@@ -916,7 +910,6 @@ search (Graph *G, List *candidates, List *bridges, List* M)
                 augmentation_occurred = bloss_aug(G, e, candidates, bridges, M, i);
             }
         }
-        i++;
     }
     
     return augmentation_occurred;
