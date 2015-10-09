@@ -101,9 +101,19 @@ initialize_vertex (Vertex *v)
 int 
 vertex_level (Vertex *v)
 {
-    if (v->evenlevel < v->oddlevel)
-        return v->evenlevel;
-    return v->oddlevel;
+    if (v->evenlevel != INFINITY && v->oddlevel != INFINITY)
+    {
+        if (v->evenlevel < v->oddlevel)
+            return v->evenlevel;
+        return v->oddlevel;
+    }
+    else
+    {
+        if (v->evenlevel == INFINITY)
+            return v->oddlevel;
+        else if (v->oddlevel == INFINITY)
+            return v->evenlevel;
+    }
 }
 
 /*
@@ -147,7 +157,7 @@ get_free_edges (Graph *G)
     List *free_edges = list_create();
     for (i = 0; i < G->edge_n; i++)
     {
-        if (G->e[i].matched != MATCHED)
+        if (G->e[i]->matched != MATCHED)
         {
             list_add (free_edges, (void*) &G->e[i]);
         }
@@ -169,7 +179,7 @@ get_exposed_vertices (Graph *G)
     List *exposed_vertices = list_create();
     for (i = 0; i < G->vertex_n; i++)
     {
-        if (G->v[i].matched != MATCHED)
+        if (G->v[i]->matched == UNMATCHED)
         {
             list_add (exposed_vertices, (void*) &G->v[i]);
         }
@@ -201,7 +211,7 @@ initial_matching (Graph *G)
      * TODO: Create a function to add the edge to the matching list, 
      *       and set its vertices matched label to MATCHED.
      */
-    e = &G->e[n];
+    e = G->e[n];
     e->v1->matched = e->v2->matched = MATCHED;
     e->matched = MATCHED;
     e->v1->mate = e->v2;
@@ -214,7 +224,7 @@ initial_matching (Graph *G)
     for (i = 0; i < n; i++)
     {
         n = rand () % G->edge_n;
-        e = &G->e[n];
+        e = G->e[n];
         //verifying if one of the vertices of the selected edge is already matched
         if ( (e->v1->matched == UNMATCHED) && (e->v2->matched == UNMATCHED) )
         {
@@ -257,7 +267,9 @@ bloom_create (Graph *G, Edge* bridge, int phase,
     Edge *y_z;
     Bloom *B = malloc (sizeof (Bloom));
 
-    DCV->side = -1; //undefining the side mark
+    if (DCV != NULL)
+        DCV->side = -1; //undefining the side mark
+
     B->vertices = bloom_vertices; //vertices marked left or right during bloss_aug
     B->id = G->blooms->queue_size;
     B->left_peak = bridge->v1;//s
@@ -356,9 +368,9 @@ open (Graph *G, Vertex *x)
     b = B->base;
 
     //x is outer
-    if (vertex_level (x) % 2 == 0)
+    if (vertex_level(x) % 2 == 0)
     {
-        path = findpath (G, x, b, B);
+        path = findpath (G, &x, &b, B);
         return path;
     }
     //x is inner
@@ -366,13 +378,13 @@ open (Graph *G, Vertex *x)
     {
         if (x->side == LEFT)
         {
-            path_half1 = findpath (G, B->left_peak, x, B);
-            path_half2 = findpath (G, B->right_peak, b, B);
+            path_half1 = findpath (G, &B->left_peak, &x, B);
+            path_half2 = findpath (G, &B->right_peak, &b, B);
         }
         else if (x->side == RIGHT)
         {
-            path_half1 = findpath (G, B->right_peak, x, B);
-            path_half2 = findpath (G, B->left_peak, b, B);
+            path_half1 = findpath (G, &B->right_peak, &x, B);
+            path_half2 = findpath (G, &B->left_peak, &b, B);
         }
 
         path = queue_create();
@@ -414,7 +426,7 @@ open (Graph *G, Vertex *x)
  *              other than B
  */
 Queue *
-findpath (Graph *G, Vertex *high, Vertex *low, Bloom *B)
+findpath (Graph *G, Vertex **high, Vertex **low, Bloom *B)
 {
     int m;
     Vertex *v, *u, *z;
@@ -434,7 +446,7 @@ findpath (Graph *G, Vertex *high, Vertex *low, Bloom *B)
         return path;
     }
 
-    v = high;
+    v = *high;
     do
     {
         //verify this loop...
@@ -478,21 +490,21 @@ findpath (Graph *G, Vertex *high, Vertex *low, Bloom *B)
         }
 
         if ((u->visited == UNVISITED) && (u->status == UNERASED)
-                && (vertex_level (u) > vertex_level (low))
-                && (u->side == high->side))
+                && (vertex_level (u) > vertex_level (*low))
+                && (u->side == (*high)->side))
         {
             u->visited = VISITED;
             u->parent = v;
             v = u;
         }
 
-    } while (u != low);
+    } while (u != *low);
     
     //creating the path from high to low, using parent pointers
-    queue_enqueue (path, (void*) high);
-    z = high->parent;
+    queue_enqueue (path, (void*) *high);
+    z = (*high)->parent;
     queue_enqueue (path, (void *) z);
-    while (z != low)
+    while (z != *low)
     {
         z = z->parent;
         queue_enqueue (path, (void *) z);
@@ -535,21 +547,21 @@ findpath (Graph *G, Vertex *high, Vertex *low, Bloom *B)
  * @param[out] A boolean value signing that a new bloom was created
  */
 Bool
-left_dfs (Graph *G, Vertex *s, Vertex *vl, Vertex *vr,
-               Vertex *DCV, Vertex *barrier, List *bloom_vertices)
+left_dfs (Graph *G, Vertex *s, Vertex **vl, Vertex **vr,
+               Vertex **DCV, Vertex **barrier, List *bloom_vertices)
 {
     Vertex *u;
     Edge *e;
     //Element *predecessor_el = list_pop (vl->predecessors);
     Element *predecessor_el;
-    for (predecessor_el = vl->predecessors->head;
+    for (predecessor_el = (*vl)->predecessors->head;
             predecessor_el != NULL; predecessor_el = predecessor_el->next)
     {
         u = (Vertex *) predecessor_el->data;
         if (u->status == ERASED)
             continue;
 
-        e = get_edge_by_vertices (G, vl, u);
+        e = get_edge_by_vertices (G, *vl, u);
         if (e->used == USED)
             continue;
 
@@ -565,16 +577,16 @@ left_dfs (Graph *G, Vertex *s, Vertex *vl, Vertex *vr,
         {
             u->side = LEFT;
             list_add (bloom_vertices, (void *) u);
-            u->parent = vl; 
-            vl = u;
+            u->parent = *vl; 
+            *vl = u;
             return False;
         }
     }
 
-    if (vl == s)
+    if (*vl == s)
         return True;
 
-    vl = vl->parent;
+    *vl = (*vl)->parent;
     return False;
 }
 
@@ -593,22 +605,22 @@ left_dfs (Graph *G, Vertex *s, Vertex *vl, Vertex *vr,
  *                           a new bloom.
  */
 void 
-right_dfs (Graph *G, Vertex *vl, Vertex *vr, 
-                Vertex *DCV, Vertex *barrier, List *bloom_vertices)
+right_dfs (Graph *G, Vertex **vl, Vertex **vr, 
+                Vertex **DCV, Vertex **barrier, List *bloom_vertices)
 {
     Vertex *u;
     Edge *e;
     //Element *predecessor_el = list_pop (vr->predecessors);
 
     Element *predecessor_el;
-    for (predecessor_el = vl->predecessors->head;
+    for (predecessor_el = (*vr)->predecessors->head;
             predecessor_el != NULL; predecessor_el = predecessor_el->next)
     {
         u = (Vertex *) predecessor_el->data;
         if (u->status == ERASED)
             continue;
 
-        e = get_edge_by_vertices (G, vr, u);
+        e = get_edge_by_vertices (G, *vr, u);
         if (e->used == USED)
             continue;
 
@@ -624,27 +636,27 @@ right_dfs (Graph *G, Vertex *vl, Vertex *vr,
         {
             u->side = RIGHT;
             list_add (bloom_vertices, (void *) u);
-            u->parent = vr; 
-            vr = u;
+            u->parent = *vr; 
+            *vr = u;
             return;
         }
         else
         {
-            if (u == vl)
-                DCV = u;
+            if (u == *vl)
+                *DCV = u;
         }
     }
 
-    if (vr == barrier)
+    if (*vr == *barrier)
     {
-        vr = DCV;
-        barrier = DCV;
-        vr->side = RIGHT;
-        list_add (bloom_vertices, (void *) vr);
-        vl = vl->parent;
+        *vr = *DCV;
+        *barrier = *DCV;
+        (*vr)->side = RIGHT;
+        list_add (bloom_vertices, (void *) *vr);
+        *vl = (*vl)->parent;
     }
     else
-        vr = vr->parent;
+        *vr = (*vr)->parent;
 }
 
 /**
@@ -665,7 +677,7 @@ bloss_aug (Graph *G, Edge *e, List *candidates, List *bridges,
     Bloom B; B.id = -1;
     Element *el;
     Edge *temp;
-    Vertex *vl, *vr, *DCV, *barrier, *v1, *v2;
+    Vertex *vl, *vr, *DCV = NULL, *barrier, *v1, *v2;
     Bool bloom_discovered = False;
     Queue *path_half1, *path_half2;
     //used in case a bloom is discovered
@@ -701,10 +713,10 @@ bloss_aug (Graph *G, Edge *e, List *candidates, List *bridges,
     while (!(vl->matched == UNMATCHED && vr->matched == UNMATCHED))
     {
         if (vertex_level (vl) >= vertex_level (vr))
-           bloom_discovered = left_dfs (G, e->v1, vl, vr, DCV, 
-                                        barrier, bloom_vertices);
+           bloom_discovered = left_dfs (G, e->v1, &vl, &vr, &DCV, 
+                                        &barrier, bloom_vertices);
         else
-           right_dfs (G, vl, vr, DCV, barrier, bloom_vertices);
+           right_dfs (G, &vl, &vr, &DCV, &barrier, bloom_vertices);
 
         if (bloom_discovered)
         {
@@ -720,9 +732,9 @@ bloss_aug (Graph *G, Edge *e, List *candidates, List *bridges,
     list_destroy (bloom_vertices);
 
     //find a path Pl from High=s to Low=vl with B=undefined
-    path_half1 = findpath (G, e->v1, vl, &B);
+    path_half1 = findpath (G, &e->v1, &vl, &B);
     //find a path Pr from High=t to Low=vr with B=undefined
-    path_half2 = findpath (G, e->v2, vr, &B);
+    path_half2 = findpath (G, &e->v2, &vr, &B);
 
     //increase the current matching M, reversing Pl through e ending with Pr
     //adding the vertices of (s,t) to the path
@@ -799,7 +811,6 @@ search (Graph *G, List *candidates, List *bridges, List* M)
     List *bridges_el;
     List *candidates_el = (List *) list_n_get(candidates, 0)->data;
     
-    printf ("Size of Candidates: %d\n", candidates->list_size);
 
     List *exposed_vertices = get_exposed_vertices (G);
 
@@ -812,13 +823,13 @@ search (Graph *G, List *candidates, List *bridges, List* M)
     }
 
 
-    candidates_el = (List *) list_n_get(candidates, i)->data;
-
-    while (!list_is_empty (candidates_el) 
-           && !augmentation_occurred)
+    //while (!list_is_empty (candidates_el) 
+    //       && !augmentation_occurred)
+    for (i = 0; i < G->vertex_n; i++)
     {
+        candidates_el = (List *) list_n_get(candidates, i)->data;
 
-        printf ("Inside Search Main loop -- Beggining -- i = %d\n", i);
+        //printf ("Inside Search Main loop -- Beggining -- i = %d\n", i);
         //if i is even
         if (i % 2 == 0)
         {
@@ -826,7 +837,6 @@ search (Graph *G, List *candidates, List *bridges, List* M)
             {
                 v = (Vertex *) el->data;
 
-                printf ("Inside Search Main loop -- candidates loop\n");
                 //access unerased neighbors of v, and verify free edges between them
                 for (el_1 = v->neighbors->head; el_1 != NULL; el_1 = el_1->next)
                 {
@@ -846,7 +856,7 @@ search (Graph *G, List *candidates, List *bridges, List* M)
                     {
                         if (u->evenlevel != INFINITY)
                         {
-                            j = (u->oddlevel + v->oddlevel)/2;
+                            j = (u->evenlevel + v->evenlevel)/2;
                             bridges_el = (List *) list_n_get (bridges, j)->data;
                             list_add (bridges_el, e);
                         }
@@ -916,10 +926,13 @@ search (Graph *G, List *candidates, List *bridges, List* M)
                 augmentation_occurred = bloss_aug(G, e, candidates, bridges, M, i);
             }
         }
-        i++;
+
+        if (augmentation_occurred)
+            return True;
+        //i++;
     }
     
-    return augmentation_occurred;
+    return False;
 }
 
 /**
@@ -933,7 +946,7 @@ matching (Graph *G)
 {
     //Loop variables
     int i;
-    Bool augmentation_occurred = False;
+    Bool augmentation_occurred = True;
 
     //setup a initial matching on the graph
     //List *M = initial_matching (G);
@@ -941,7 +954,7 @@ matching (Graph *G)
     List *M = list_create ();
     for (i = 0; i < G->edge_n; i++)
     {
-        if (G->e[i].matched == MATCHED)
+        if (G->e[i]->matched == MATCHED)
             list_add (M, (void *) &G->e[i]);
     }
     
@@ -969,7 +982,7 @@ matching (Graph *G)
         for (i = 0; i < G->vertex_n; i++)
         {
             //initializing vertex with default values
-            initialize_vertex (&G->v[i]);
+            initialize_vertex (G->v[i]);
 
 
             //recreating the group of lists
@@ -980,11 +993,12 @@ matching (Graph *G)
 
         for (i = 0; i < G->edge_n; i++)
         {
-            initialize_edge(&G->e[i]);
+            initialize_edge(G->e[i]);
         }
         augmentation_occurred = search(G, candidates, bridges, M);
 
-    } while (!augmentation_occurred);
+    } while (augmentation_occurred);
 
     return M;
 }
+

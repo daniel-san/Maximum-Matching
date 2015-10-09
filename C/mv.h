@@ -21,11 +21,11 @@ void bloom_create (Graph *G, Edge *bridge, int phase,
 void erase (Queue *Y);
 Vertex * base_p (Vertex *v, Queue *blooms);
 Queue * open (Graph *g, Vertex *x);
-Queue * findpath (Graph *G, Vertex *high, Vertex *low, Bloom *B);
-Bool left_dfs (Graph *G, Vertex *s, Vertex *vl, Vertex *vr, 
-                Vertex *DCV, Vertex *barrier, List *bloom_vertices);
-void right_dfs (Graph *G, Vertex *vl, Vertex *vr, 
-                Vertex *DCV, Vertex *barrier, List *bloom_vertices);
+Queue * findpath (Graph *G, Vertex **high, Vertex **low, Bloom *B);
+Bool left_dfs (Graph *G, Vertex *s, Vertex **vl, Vertex **vr, 
+                Vertex **DCV, Vertex **barrier, List *bloom_vertices);
+void right_dfs (Graph *G, Vertex **vl, Vertex **vr, 
+                Vertex **DCV, Vertex **barrier, List *bloom_vertices);
 Bool bloss_aug (Graph *G, Edge *e, List *candidates, List *bridges, 
                 List *M, int phase);
 Bool search (Graph *G, List *candidates, List *bridges, List *M);

@@ -64,14 +64,14 @@ typedef struct edge{
 typedef struct graph{
     size_t vertex_n;
     size_t edge_n;
-    Vertex* v;
-    Edge* e;
+    Vertex **v;
+    Edge **e;
 
     Queue *blooms;
 } Graph;
 
 //Graph adt functions
-Vertex vertex_create (int id);
-Edge edge_create (Vertex *v1, Vertex *v2);
+Vertex* vertex_create (int id);
+Edge* edge_create (Vertex *v1, Vertex *v2);
 Edge* get_edge_by_vertices (Graph *G, Vertex* v1, Vertex* v2);
-Graph graph_create (size_t vertex_n, size_t edge_n);
+Graph* graph_create (size_t vertex_n, size_t edge_n);
