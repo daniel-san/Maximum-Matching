@@ -810,7 +810,10 @@ search (Graph *G, List *candidates, List *bridges, List* M)
     //used to access one of the lists inside bridges or candidates list
     List *bridges_el;
     List *candidates_el = (List *) list_n_get(candidates, 0)->data;
+<<<<<<< HEAD
     
+=======
+>>>>>>> 27872c75d0e4fd44da6e2ef9aff51e76ebf61552
 
     List *exposed_vertices = get_exposed_vertices (G);
 
@@ -822,7 +825,9 @@ search (Graph *G, List *candidates, List *bridges, List* M)
         list_add (candidates_el, (void *) v);
     }
 
+    list_destroy (exposed_vertices);
 
+<<<<<<< HEAD
     //while (!list_is_empty (candidates_el) 
     //       && !augmentation_occurred)
     for (i = 0; i < G->vertex_n; i++)
@@ -830,6 +835,11 @@ search (Graph *G, List *candidates, List *bridges, List* M)
         candidates_el = (List *) list_n_get(candidates, i)->data;
 
         //printf ("Inside Search Main loop -- Beggining -- i = %d\n", i);
+=======
+    for (i = 0; i < G->vertex_n; i++)
+    {
+        candidates_el = (List *) list_n_get(candidates, i)->data;
+>>>>>>> 27872c75d0e4fd44da6e2ef9aff51e76ebf61552
         //if i is even
         if (i % 2 == 0)
         {
@@ -842,7 +852,7 @@ search (Graph *G, List *candidates, List *bridges, List* M)
                 {
                     u = (Vertex*) el_1->data;
 
-                    PRINT_VERTEX(u);
+                    //PRINT_VERTEX(u);
 
                     //if u is erased, verify the next neighbor
                     if (u->status == ERASED)
@@ -850,7 +860,7 @@ search (Graph *G, List *candidates, List *bridges, List* M)
 
                     e = get_edge_by_vertices(G, u, v);
 
-                    PRINT_EDGE (e);
+                    //PRINT_EDGE (e);
 
                     if (e->matched == UNMATCHED)
                     {
@@ -926,10 +936,13 @@ search (Graph *G, List *candidates, List *bridges, List* M)
                 augmentation_occurred = bloss_aug(G, e, candidates, bridges, M, i);
             }
         }
+<<<<<<< HEAD
 
         if (augmentation_occurred)
             return True;
         //i++;
+=======
+>>>>>>> 27872c75d0e4fd44da6e2ef9aff51e76ebf61552
     }
     
     return False;
