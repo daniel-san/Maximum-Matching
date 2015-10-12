@@ -44,6 +44,12 @@ stack_pop (Stack* s)
     return stack_top;
 }
 
+Bool
+stack_is_empty (Stack *s)
+{
+    return (s->top == NULL);
+}
+
 void
 stack_destroy (Stack *s)
 {

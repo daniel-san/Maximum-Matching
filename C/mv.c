@@ -129,19 +129,21 @@ initialize_edge (Edge *e)
 }
 
 /**
- * Reverse the status of an edge from Matched to Unmatched.
- * This function is used to increase the matching along a 
- * augmenting path.
+ * Reverse the status of an edge from Matched to Unmatched, or from 
+ * Unmatched to Matched. This function is used to increase the matching 
+ * along a augmenting path.
  *
  * @param[in] e The edge to be reversed
  */
 void
-reverse_edge (Edge *e)
+reverse_edge (Edge **e)
 {
-    if (e->matched == MATCHED)
-        e->matched = UNMATCHED;
+    if ((*e)->matched == MATCHED)
+        (*e)->matched = UNMATCHED;
     else
-        e->matched = MATCHED;
+        (*e)->matched = MATCHED;
+
+    (*e)->checked = CHECKED;
 }
 
 /*
@@ -159,7 +161,7 @@ get_free_edges (Graph *G)
     {
         if (G->e[i]->matched != MATCHED)
         {
-            list_add (free_edges, (void*) &G->e[i]);
+            list_add (free_edges, (void*) G->e[i]);
         }
     }
 
@@ -181,7 +183,7 @@ get_exposed_vertices (Graph *G)
     {
         if (G->v[i]->matched == UNMATCHED)
         {
-            list_add (exposed_vertices, (void*) &G->v[i]);
+            list_add (exposed_vertices, (void*) G->v[i]);
         }
     }
 
@@ -254,7 +256,7 @@ initial_matching (Graph *G)
  * @param[in] bloom_vertices A list that contain vertices that were marked 'left'
  *                           or 'right' during the DFS and are used to create 
  *                           a new bloom.
- * @param[in] DCV The Deepes Common Vertex found during the DFS process
+ * @param[in] DCV The Deepest Common Vertex found during the DFS process
  */
 void
 bloom_create (Graph *G, Edge* bridge, int phase,
@@ -368,7 +370,7 @@ open (Graph *G, Vertex *x)
     b = B->base;
 
     //x is outer
-    if (vertex_level(x) % 2 == 0)
+    if (vertex_level (x) % 2 == 0)
     {
         path = findpath (G, &x, &b, B);
         return path;
@@ -431,7 +433,7 @@ findpath (Graph *G, Vertex **high, Vertex **low, Bloom *B)
     int m;
     Vertex *v, *u, *z;
     Edge *v_z, *u_v;
-    Element *el;
+    Element *el, *el_1;
     Bloom *b;
 
     Bool have_unvisited_edges = False;
@@ -442,7 +444,7 @@ findpath (Graph *G, Vertex **high, Vertex **low, Bloom *B)
     
     if (high == low)
     {
-        queue_enqueue (path, (void *) high);
+        queue_enqueue (path, (void *) *high);
         return path;
     }
 
@@ -498,30 +500,36 @@ findpath (Graph *G, Vertex **high, Vertex **low, Bloom *B)
             v = u;
         }
 
+        //resetting for next loop
+        have_unvisited_edges = False;
+
     } while (u != *low);
     
-    //creating the path from high to low, using parent pointers
-    queue_enqueue (path, (void*) *high);
-    z = (*high)->parent;
-    queue_enqueue (path, (void *) z);
-    while (z != *low)
+    //creating the path from low to high, using parent pointers
+    //adding low to the path
+    queue_enqueue (path, (void *) *low);
+    z = (*low)->parent;
+    queue_enqueue (path, (void *) (*low)->parent);
+    while (z != *high)
     {
         z = z->parent;
         queue_enqueue (path, (void *) z);
     }
-    //adding low to the path
-    queue_enqueue (path, (void *) z);
+    //adding high to the path
+    //queue_enqueue (path, (void *) z);
 
     //u == xj and v = xj+1
     for (m = 0; m < path->queue_size; m++)
     {
-        u = (Vertex *) queue_n_get (path, m)->data;
-        if (u->bloom != -1 && u->bloom != B->id)
+        el = queue_n_get (path, m);
+        u = (Vertex *) el->data;
+        if ((u->bloom != -1) && (u->bloom != B->id && B->id != -1))
         {
-            v = (Vertex *) queue_n_get (path, m + 1)->data;
+            el_1 = queue_n_get (path, m + 1);
+            //v = (Vertex *) el_1->data;
             temp = open (G, u);
-            u = (Vertex *) queue_dequeue (temp)->data;
-            v = (Vertex *) queue_dequeue (temp)->data;
+            el->data = queue_dequeue (temp)->data;
+            el_1->data = queue_dequeue (temp)->data;
             queue_destroy (temp);
         }
 
@@ -680,6 +688,8 @@ bloss_aug (Graph *G, Edge *e, List *candidates, List *bridges,
     Vertex *vl, *vr, *DCV = NULL, *barrier, *v1, *v2;
     Bool bloom_discovered = False;
     Queue *path_half1, *path_half2;
+    //a stack used to reverse the path found by the second call of findpath
+    Stack *reverse;
     //used in case a bloom is discovered
     List *bloom_vertices = list_create ();
     //s = e->v1;
@@ -737,28 +747,43 @@ bloss_aug (Graph *G, Edge *e, List *candidates, List *bridges,
     path_half2 = findpath (G, &e->v2, &vr, &B);
 
     //increase the current matching M, reversing Pl through e ending with Pr
+    
     //adding the vertices of (s,t) to the path
-    queue_enqueue (path_half1, (void *) e->v1);
-    queue_enqueue (path_half1, (void *) e->v2);
+    //queue_enqueue (path_half1, (void *) e->v1);
+    //queue_enqueue (path_half1, (void *) e->v2);
+
+    reverse = stack_create();
+    while (!(queue_is_empty(path_half2)))
+    {
+        stack_push (reverse, queue_dequeue (path_half2)->data);
+    }
 
     //joining paths into one single queue
-    while (!queue_is_empty (path_half2))
+    while (!stack_is_empty (reverse))
     {
-        queue_enqueue (path_half1, queue_dequeue (path_half2)->data);
+        queue_enqueue (path_half1, stack_pop (reverse)->data);
     }
 
     //freeing memory
     queue_destroy (path_half2);
+    stack_destroy (reverse);
 
     //reversing edges in the path
+    //TODO: Change the values of matched and other values on vertices of 
+    //      the edges
     for (el = path_half1->first; el->next != NULL; el = el->next)
     {
         v1 = (Vertex *) el->data;
         v2 = (Vertex *) el->next->data;
         temp = get_edge_by_vertices (G, v1, v2);
+
+        //temp is null in case there's not an edge between v1 and v2
+        if (temp == NULL)
+            continue;
+
         if (temp->checked == UNCHECKED)
         {
-            reverse_edge (temp);
+            reverse_edge (&temp);
             if (temp->matched == MATCHED)
                 list_add (M, (void *) temp);
         }
@@ -778,6 +803,11 @@ bloss_aug (Graph *G, Edge *e, List *candidates, List *bridges,
         temp = (Edge *) el->data;
         if (temp->matched == UNMATCHED)
             list_delete (M, el);
+        else if (temp->matched == MATCHED)
+        {
+            temp->v1->matched = MATCHED;
+            temp->v2->matched = MATCHED;
+        }
         el = el->next;
     }
 
@@ -955,7 +985,7 @@ matching (Graph *G)
     for (i = 0; i < G->edge_n; i++)
     {
         if (G->e[i]->matched == MATCHED)
-            list_add (M, (void *) &G->e[i]);
+            list_add (M, (void *) G->e[i]);
     }
     
     //Bridges and Candidates are Lists of lists. Which means that 

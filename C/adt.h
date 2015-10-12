@@ -47,6 +47,7 @@ typedef struct list
 Stack* stack_create ();
 void stack_push (Stack *s, void *data);
 Element* stack_pop (Stack *s);
+Bool stack_is_empty (Stack *s);
 void stack_destroy (Stack *s);
 
 //queue functions
